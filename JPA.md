@@ -74,9 +74,64 @@
 ### JPA와 연관관계
 - JPA는 연관관계와 관련된 패러다임의 불일치 문제를 해결해준다.
 - 개발자는 객체간의 관계만 설정하고 저장하면 JPA가 참조를 외래키로 변환해서 적절한 SQL문을 데이터베이스에 전달한다.
-- 객체를 조회할 때 외래 키를 참조로 변환하는 일도 JPA가 한다.
 
 ```java
-Member member =jpa.find(Member.class,merberId); // 회원과 팀 연관관계 설정
-Team team = member.getTeam();  //회원과 연관관계 함께 저장
+/*저장*/
+member.setTeam(team); //회원과 팀 연관관계 설정
+jpa.persist(member);  //회원과 연관관계 함께 저장
 ```
+
+- 객체를 조회할 때 외래 키를 참조로 변환하는 일도 JPA가 한다.
+```java
+/*조회*/
+Member member =jpa.find(Member.class,merberId); 
+Team team = member.getTeam(); 
+```
+
+### 1.2.3 객체 그래프 탐색
+- 객체가 참조를 사용해서 연관된 객체를 찾는 것을 객체 그래프 탐색이라고 한다.
+- 객체는 마음껏 객체 그래프를 탐색할 수 있어야 한다.
+```java
+  member.getOrder().getOrderItem(); //자유로운 객체 그래프 탐색
+```
+- 근데 SQL에서 연관 객체를 같이 조회하지 않으면 다른 객체 그래프는 데이터가 없으므로 탐색할 수 없다.
+- SQL을 직접 다루면 처음 실행하는 SQL에 따라 객체 그래프를 어디까지 탐색할 수 있는지 정해진다.
+- 비즈니스 로직에 따라 사용하는 객체 그래프가 달라 언제 끊어질지 모를 객체 그래프를 함부로 탐색할 수 없다.
+```java
+class MemberService{
+  ...
+  public void process(){
+    Member member = MerberDAO.find(memberId);
+    member.getTeam();  //member -> team 객체 그래프 탐색이 가능한가? SQL 봐야알겠는데..
+    member.getOrder(); //이것도 SQL 봐야겠는걸..
+  }
+}
+```
+- member 객체는 조회했지만 이 객체와 연관된 Team,Order 방향으로 객체 그래프를 탐색할 수 있을지 없을지는 예측할 수 없다.
+- 데이터 접근 계층 DAOO를 열어서 SQL을 직접 확인해야한다.
+- SQL에 논리적으로 종속되어 있으니 SQL을 직접 확인하지 않는이상 객체 그래프만 가지고 예측하고 확신할 수 없다.
+  
+#### JPA와 객체 그래프 탐색
+- JPA는 연관된 객체를 사용하는 시점에 적절한 SELECT SOL을 실행한다.
+- 실제 객체를 사용하는 시점까지 데이터베이스 조회를 미룬다고 해서 자연 로딩이라 한다.
+- JPA와 관련된 어떤 코드도 직접 사용하지 않는다. (JPA는 지연 로딩을 투명하게 처리함)
+```java
+    /*한 테이블씩 조회*/
+    //처음 조회 시점에 MEMBER SQL 
+    Member member = jpa.find(Member.class,memberId);
+
+    Order order = member.getOrder();
+    order.getOrderDate(); //ORDER를 사용하는 시점에 ORDER SQL
+ ```
+- 한 테이블씩 조회하는 것보다 Member을 조회하는 시점에 SQL 조인을 사용해서 Member와 Order를 함께 조회하는 것이 효과적이다.
+- JPA는 연관된 객체를 즉시 함께 조회할지 아니면 실제 사용되는 시점에 지연해서 조회할지를 간단한 설정으로 정의할 수 있다.
+- 즉시 함께 조회한다고 설정하면 JPA는 Member를 조회할 때 다음 Order도 JOIN해서 가져온다.
+
+### 1.2.4 비교
+- 데이터베이스는 기본키의 값으로 ROW를 구분하고 객체는 동일성비교와 동등성비교 방법으로 구분한다.
+  * 동일성 비교는 == 비교로 객체 인스턴스의 주소값을 비교한다.
+  * 동등성 비교는 equals() 메소드를 사용해서 객체 내부의 값을 비교한다.
+- 이러한 차이가 있어서 같은 SQL문을 태워 객체 2개를 생성하면 같은 데이터임에도 객체 측면에서 볼 때 두 객체는 다른 인스턴스다.
+- 데이터베이스의 같은 ROW를 조회했지만 객체의 동일성 비교에는 실패한다.
+- 객체를 컬렉션에 보관했다면 동일성 비교에 성공했을 것이다.
+  + 코드 작성부터하기
