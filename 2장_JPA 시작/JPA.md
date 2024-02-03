@@ -78,6 +78,58 @@
     ```
     
 ## 2.3 라이브러리와 프로젝트 구조
+  ### 서론
+  - 필요한 모든 라이브러리를 직접 내려받아서 관리하기는 어렵다.
+  - 메이븐은 중앙저장소에서 의존성을 다운로드하고 빌드 결과물을 배포하는 등의 작업을 자동화하여 개발자들의 프로젝트의 복잡성을 간소화할 수 있게 한다.(+)
+  - 이 프로젝트에서도 메이븐이라는 도구를 사용한다.
+  - 이클립스 LUNA버전에는 메이븐이 내장되어있다.
+  - JPA 구현체로 하이버네이트를 사용하기 위한 핵심 드라이버가 있다.
+    - hibernate-core : 하이버네이트 라이브러리
+    - hibernate-entitymanager : 하이버네이트가 JPA 구현체로 동작하도록 JPA 표준을 구현한 라이브러리
+    - hibernate-jpa-2.1-api : JPA 2.1 표준 API를 모아둔 라이브러리
+   ![ConnectionMaker](./images/st.PNG)
+  - 프로젝트 구조는 위와 같다. 
+  
+  ### 2.3.1 메이븐과 사용 라이브러리 관리
+  - 메이븐은 간단히 이야기하면 라이브러리를 관리하는 도구다.
+  - pom.xml에 사용할 라이브러리를 적어두면 라이브러리를 자동으로 내려받아서 관리해준다.
+  - 최근 자바 애플리케이션은 메이븐 같은 도구를 사용해서 라이브러리를 관리하고 빌드한다.
+  - 자바 애플리케이션을 개발하려면 jar 파일로 된 여러 라이브러리가 필요한데 과거에는 이런 라이브러리를 직접 내려받아 사용했다.
+  - 메이븐은 사용할 라이브러리 이름과 버전만 명시하면 라이브러리를 자동으로 내려받고 관리해준다.(라이브러리 관리기능)
+  - 메이븐은 애플리케이션을 빌드하는 표준화된 방법을 제공한다.(빌드 기능)
+
+  ```xml
+  <?xml version="1.0" encoding=nUTF-8M?>
+  <project xmlns=?,http: //maven. apache. org/POM/4.0.0” 
+  xmlns:xsi=nhttp://www.w3.org/2001/XMLSchema-instanceM
+  xsi: schemaLocation=,fhttp: / /maven. apache. org/POM/4.0.0 http: / /maven. 
+  apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</m delVers on〉
+    <groupId>jpabook</groupId>
+    <artifactld>jpa-start</artifactld>
+    <version〉l .0-NAPSHOT</version>
+
+    <dependencies>
+      <!-- JPA, 하이버네이트 一 〉
+      〈dependency〉
+      <groupId>org.hibernate</groupId> 
+      <artifactld>hibernate-entitymanager</artifactld>
+      <version>4.3.10.Final</version>
+      </dependency〉
+      <!— H2 데이터베이스 — 〉
+      〈dependency〉
+      <groupId>com.h2database</groupId>
+      <artifactld>h2</artifactld>
+      <version>l.4.187</version>
+      </dependency〉
+    </dependencies>
+  </project>
+  ```
+- <dependencies>에 사용할 라이브러리를 지정한다.
+- groupId + artifactId + version만 적어주면 라이브러리를 메이븐 공식 저장소에서 내려받아 라이브러리에 추가해준다.
+- JPA에 하이버네이트 구현체를 사용하려면 많은 라이브러리가 필요하지만 핵심 라이브러리는 2가지다.
+  - 
 ## 2.4 객체 매핑 시작
 ## 2.5 persistence.xml 설정
 ## 2.6 애플리케이션 개발
