@@ -52,8 +52,31 @@
   - H2 데이터베이스는 자바가 설치되어 있어야 동작한다.
 
     #### H2 데이터베이스 설치 방법
-    - http://www.h2database.com에 들어가서 All Platforms 또는 PlatformIndependent Zip을 내려받아서 압축을 푼다.
-    - 
+    - http://www.h2database.com에 들어가서 All Platforms 또는 Platform-Independent Zip을 내려받아서 압축을 푼다.
+    - 압축을 푼 곳에서 bin/h2.sh를 실행하면 H2 데이터베이스를 서버 모드로 실행한다.
+    - H2 데이터베이스는 JVM 메모리 안에서 실행되는 임베디드 모드와 실제 데이터베이스처럼 별도의 서버를 띄워서 동작하는 서버모드가 있다.
+    ![ConnectionMaker](./images/2.8.PNG)
+    - H2 데이터베이스를 서버 모드로 실행한 후에 웹 브라우저에서 http ://localhost:8082를 입력하면 H2 데이터베이스에 접속할 수 있는 화면이 뜬다.
+
+    ■ 드라이버 클래스: org.h2.Driver
+    ■ JDBC URL: jdbc：h2：tcp：//localhost/~/test
+    ■ 사용자명 : sa
+    ■  비밀번호: 입력하지 않는다
+
+    ![ConnectionMaker](./images/2.9.PNG)
+
+    - test라는 이름의 데이터베이스에 서버 모드로 접근할 수 있다.
+
+    #### 예제 테이블 생성
+    ```sql
+    CREATE TABLE MEMBER (
+      ID VARCHAR(255) NOT NULL, -- 아이디 (기본키) 
+      NAME VARCHAR(255) , -- 이름
+      AGE INTEGER NOT NULL, -- 나이
+      PRIMARY KEY (ID)
+    )
+    ```
+    
 ## 2.3 라이브러리와 프로젝트 구조
 ## 2.4 객체 매핑 시작
 ## 2.5 persistence.xml 설정
