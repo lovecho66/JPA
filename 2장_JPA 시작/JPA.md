@@ -229,5 +229,172 @@
 > 참고 : JPA 어노테이션의 패키지는 javax.persistence
 
 ## 2.5 persistence.xml 설정
+  ### 서론
+  - JPA는 persistence.xml을 사용해서 필요한 설정 정보를 관리한다.
+  - META-INF/persistence.xml 클래스 패스 경로에 있으면 별도의 설정없이 JPA가 인식할 수 있다.
+  
+  ```xml
+  <?xml version="l. Ofl encoding="UTF-8" ?>
+  <persistence xmlns="http: //xmlns. j c p .org/xml/ns/persistence" version=n2 .1"〉
+  <persistence-xinit name= " jpabook n >
+  <properties>
+  < ! - - 필수 속성 一 >
+  〈property name=n javax .persistence. jdbc. driver'1
+  value=norg.h2. Driver’’/ 〉
+  〈property name=njavax.persistence. jdbc.userM value=nsalf/>
+  〈property name="j avax. persistence. j dbc .password" value=!,,l/>
+  <property name=" j avax. persistence. j dbc. urlf,
+  value="jdbc:h2:tcp://localhost/〜/test" /〉
+  〈property name=Mhibernate.dialect"
+  value=,lorg.hibernate.dialect ■ H2Dialectn / >
+  <!-- 옵션 --〉
+  〈property name="hibernate. show_sql" value=f,trueM />
+  〈property name="hibernate.format_sqlM value=MtrueM />
+  〈property name="hibernate.use_sql_commentsn value=ntruen />
+  〈property name="hibernate. id.new_generator_mappingsIT value=f,truen />
+  </properties>
+  </persistence-unit>
+  </persistence>
+  ```
+
+  ```xml
+  <persistence xmlns = "http://xmlns.jcp.org/xml/ns/persistence" version ="2.1">
+  ```
+  - 설정파일은 <persistence>로 시작한다.
+  - XML 네임스페이스와 사용할 버전을 지정한다.
+  - JPA 2.1을 사용하려면 xmlns와 version을 명시하면된다.
+
+  ```xml
+  <persistence-unit name = "jpabook">
+  ```
+  - JPA 설정은 영속성 유닛이라는 것부터 시작한다.
+  - 일반적으로 연결할 데이터베이스당 하나의 영속성 유닛을 등록한다.
+  - 영속성 유닛에는 고유한 이름을 부여해야 한다. (이 프로젝트에서는 jpabook이라는 이름을 사용)
+
+  ```xml
+  <properties>
+    <property name = "javax.persistence.jdbc.driver"
+    value = "org.h2.Driver"
+    ...
+  ```
+  - JPA 표준 속성
+    - javax.persistenc.jdbc.driver : JDBC 드라이버
+    - javax.persistenc.jdbc.user : 데이터베이스 접속 아이디
+    - javax.persistenc.jdbc.password : 데이터베이스 접속 비밀번호
+    - javax.persistenc.jdbc.url : 데이터베이스 접속 URL
+  - 하이버네이트 속성
+    - hibernate.dialect : 데이터베이스 방언 설정
+
+  - javax.persistence로 시작하는 속성은 JPA 표준 속성으로 특정 구현체에 종속되지 않는다.
+  - 반면 hibernate로 시작하는 속성은 하이버네이트 전용 속성이므로 하이버네이트에서만 사용할 수 있다.
+    
+  ### 2.5.1 데이터베이스 방언
+  
+  - JPA는 특정 데이터베이스에 종속되지 않은 기술이다. 
+  - 다른 데이터베이스로 손쉽게 교체가 가능하다.(종속X)
+  - 각 데이터베이스가 제공하는 SQL 문법과 함수가 조금씩 다르다.
+    - 데이터 타입 : VARCHAR(MySQL) , VARCHAR2(ORACLE)
+    - 다른 함수명 : SUBSTRING()-표준, SUBSTR()-ORACLE
+    - 페이징 처리 : LIMIT(MySQL) , ROWNUM(ORACLE)
+  - SQL 표준을 지키지 않거나 특정 데이터베이스만의 고유한 기능을 JPA서는 방언이라고 한다.
+  - 특정 데이터베이스에 종속되는 기능을 사용하면 나중에 데이터베이스를 교체하기 어렵다.
+  - JPA 구현체들은 이런 문제를 해결하려고 다양한 데이터베이스 방언 클래스를 제공한다.
+
+  ![ConnectionMaker](./images/2.11.PNG)
+
+  - 개발자는 JPA가 제공하는 표준 문법에 맞추어 JPA를 사용하면된다.
+  - 특정 데이터베이스에 의존적인 SQL은 데이터베이스 방언이 처리해준다.
+  - 데이터베이스가 변경되어도 애플리케이션 코드를 변경할 필요없이 데이터베이스 방언만 교체하면된다.
+  - 하이버네이트는 다양한 데이터베이스 방언을 제공한다. (아래 대표 3가지)
+    - H2 : org.hibernate.dialect.H2Dialect
+    - 오라클 10g : org.hibernate.dialect.Oracle10gDialect
+    - MySQL : org.hibernate.dialect.MySQL5InnoDBDialect
+  - 하이버네이트는 현재 45개의 데이터베이스 방언을 지원한다.
+
+
+    > 하이버네이트 전용 속성
+    > hibernate.show_sql   : 하이버네이트가 실행한 SQL을 출력한다.
+    > hibernate.format_sql : 하이버네이트가 실행한 SQL을 출력할 때 보기 쉽게 정렬한다.
+    > hibernate.use_sql_comments : 쿼리를 출력할 때 주석도 함께 출력한다.
+    > hibernate.id.new_generator_mappings : JPA 표준에 맞춘 새로운 키 생성 전략을 사용한다.
+
+    > JPA 구현체들은 보통 엔티티 클래스를 자동으로 인식하지만 환경에 따라 인식 못할 때도 있다.
+    > 그때는 persistence.xml에  <class>를 사용해서 JPA에서 사용할 엔티티 클래스를 지정하면된다.
+    > 스프링 프레임워크나 J2EE 환경에서는 엔티티를 탐색하는 기능을 제공하므로 이런 문제는 발생하지 않는다.
+    
 ## 2.6 애플리케이션 개발
+  ### 서론
+  - 객체 매핑을 완료하고 psersistence.xml로 JPA 설정도 완료했다.
+  ```java
+  package jpabook.start;
+  import javax.persistence.* ;
+  import java.util.List;
+
+  public class JpaMain {
+    public static void main(String[] args) {
+      / / [엔티티 매니저 팩토리] - 생성 
+      EntityManagerFactory emf = Persistence.createEntityManagerFactory(njpabook");
+      / / [엔티티 매니제 - 생성
+      EntityManager em = emf.createEntityManager();
+      // [트랜잭션] - 획득
+      EntityTransaction tx = em.getTransaction();
+
+      try {
+        tx.begin () ; // [트랜잭션] - 시작
+        logic (em); //비즈니스 로직 실행
+        tx.commit (); // [트랜잭션] - 커밋
+      } catch (Exception e) {
+        tx. rollback () ; // [트랜잭션] - 롤백
+      } finally {
+        em. close () ; / / [엔티티 매니제 - 종료
+      }
+      emf.close (); / / [엔티티 매니저 팩토리] - 종료
+    }
+
+    // 비즈니스로직
+    private static void logic(EntityManager em) {...}
+  }
+  ```
+  - 코드는 1) 엔티티 매니저 설정 2) 트랜잭션 관리 3) 비즈니스 로직 크게 3부분으로 나뉘어 있다.
+  
+  ### 2.6.1 엔티티 매니저 설정
+  
+    ![ConnectionMaker](./images/2.12.PNG)
+
+    #### 엔티티 매니저 팩토리 생성
+    
+    - persistance.xml에는 공장을 어떻게 만들어야하는지 설정되어있다.
+    - persistance.xml의 설정 정보를 사용해서 엔티티 매니저 팩토리를 생성한다.
+    - Persistance 클래스를 사용해서 엔티티 매니저 팩토리를 생성한다.
+    - 엔티티 매니저 팩토리를 생성하게 되면 JPA를 사용하기 위한 준비가 된거다.
+    
+    ```java
+      EntityManagerFactory emf = Persistence.createEntityManagerFactory("jpabook");
+    ```
+    - META-INF/persistence.xml에서 이름이 jpabook인 영속성 유닛을 찾아서 엔티티 매니저 팩토리를 생성한다.
+    - persistence.xml의 설정 정보를 읽어서 JPA를 동작시키기 위한 기반 객체를 만든다.
+    - JPA구현체에 따라서 데이터베이스 커넥션 풀도 생성하므로 엔티티 매니저 팩토리를 생성하는 비용은 아주 크다.
+    - 엔티티 매니저 팩토리는 애플리케이션 전체에서 딱 한번만 생성하고 공유해서 사용해야한다.
+  
+    #### 엔티티 매니저 생성
+    
+    ```java
+      EntityManger em = emf.createEntityManager();
+    ```
+    - 엔티티 매니저 팩토리에서 엔티티 매니저를 생성한다.
+    - JPA의 기능은 대부분 엔티티 매니저가 제공한다.
+    - 엔티티 매니저를 사용해서 엔티티를 데이터베이스에 등록/수정/삭제/조회할 수 있다.
+    - 엔티티 매니저는 내부에 데이터소스(데이터베이스 커넥션)를 유지하면서 데이터베이스와 통신한다.
+    - 엔티티 매니저는 데이터베이스 커넥션과 밀접한 관계가 있으므로 스레드 간에 공유하거나 재사용하면 안된다.
+
+    #### 종료
+    
+    ```java
+      em.close(); //엔티티 매니저 종료
+    ```
+    
+    - 마지막으로 사용이 끝난 엔티티 매니저는 다음처럼 반드시 종료해야한다.
+    
+  ### 2.6.2 트랜잭션 관리
+  
 ## 2.7 정리
