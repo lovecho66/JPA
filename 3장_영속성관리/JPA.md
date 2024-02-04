@@ -220,5 +220,217 @@ public class Member {...}
 > 추천하는 방법은 기본 전략을 사용하고 최적화가 필요할 정도로 느리면 그때 전략을 수정하면 된다.
 > 한 테이블에 컬럼이 30개 이상 된다는 것은 테이블 설계상 책임이 적절히 분리되지 않았을 가능성이 높다.
 
-## 3.4.4 엔티티 삭제
-- 
+  ### 3.4.4 엔티티 삭제
+  - 엔티티를 삭제하려면 먼저 삭제 대상을 조회해야 한다.
+  ```java
+    Member memberA = em.社nd(Member .class, "memberA") ; / / 삭제 대상 엔티티 조회 
+    em. remove (memberA); / / 엔티 티 삭제
+  ```
+  - em.remove()에 삭제 대상 엔티티를 넘겨주면 엔티티를 삭제한다.
+  - 엔티티를 즉시 삭제하는 것이 아니라 엔티티 등록과 비슷하게 삭제 쿼리를 쓰기 지연 SQL 저장소에 등록한다.
+  - 트랜잭션이 을 커밋해서 플러시를 호출하면 실제 데이터베이스에 삭제쿼리가 전달 된다.
+  - em.remove(memberA)를 호출하는 순간 memberA는 영속성 컨텍스트에서 제거된다.
+  - 삭데죈 엔티티는 재사용하지 말고 자연스럽게 가비지 컬렉션의 대상이 되지 않도록 두는게 좋다.(재조회x)
+
+## 3.5 플러시
+  ### 서론
+  - 플러시는 영속성 컨텍스트의 변경 내용을 데이터베이스에 반영한다.
+  - 영속성 컨텍스트를 플러시하는 방법은 3가지다.
+    1. em.flush()를 직접 호출한다.
+       - 영속성 컨텍스트를 강제로 플러시한다.
+       - 테스트나 다른 프레임워크와 JPA를 함께 사용할 때를 제외하고는 거의 사용하지 않는다.
+    2. 트랜잭션 커밋 시 플러시가 자동 호출된다.
+       - 데이터베이스에 변경 내용을 SQL로 전달하지 않고 트랜잭션만 커밋하면 어떤 데이터도 데이터베이스에 반영되지 않는다.
+       - 트랜잭션을 커밋하기 전에 꼭 플러시를 호출해서 영속성 컨텍스트의 변경 내용을 데이터베이스에 반영해야한다.
+       - JPA는 이런 문제를 해결하기 위해 트랜잭션을 커밋할 때 플러시를 자동으로 호출한다. 
+    3. JPQL 쿼리 실행시 플러시가 자동 호출된다.
+      - JPQL이나 같은 객체지향 쿼리를 호출해도 플러시가 실행된다.
+      ```java
+        em.persist (memberA) ;
+        em.persist(memberB);
+        em.persist(memberC);
+        //중간에 JPQL 실행
+        query = em. createQuery (T, select m from Member m", Member .class);
+        List<Member> members= query.getResultList();
+      ```
+      - 영속성 컨텍스트에만 있는 내용을 플러시해서 변경 내용을 데이터베이스에 반영해야 한다.
+      - JPQL을 실행할 때 변경된 내용도 같이 조회가 된다.
+      - JPA는 이러한 문제를 해결하기 위해 플러시를 자동 호출한다.
+   
+   ### 3.5.1 플러시 모드 옵션
+   - 엔티티 매니저에 플러시 모드를 직접 지정하려면 javax.persistence.FlushModeType을 사용한다.
+     - FlushModeType.AUTO : 커밋이나 쿼리를 실행할 때 플러시(기본값)
+     - FlushModeType.COMMIT; : 커밋할 때만 플러시
+   - 플러시 모드를 별도로 설정하지 않으면 AUTO로 동작한다.
+   - 플러시는 다시한번 강조하지만 영속성 컨텍스트의 변경 내용을 데이터베이스에 동기화하는 것이다.
+   - 데이터베이스와 동기화를 최대한 늦추는 것이 가능한 이유는 트랜잭션이라는 작업단위가 있기 때문이다.
+   - 트랜잭션 커밋 직전에만 변경 내용을 데이터베이스에 보내 동기화 하면된다.
+
+  ## 3.6 준영속
+  - 영속성 컨텍스트가 관리하는 영속 상태의 엔티티가 영속성 컨텍스트에서 분리된 것을 준영속 상태라고 한다.
+  - 준영속 상태의 엔티티는 영속성 컨텍스트가 제공하는 기능을 사용할 수 없다.
+  - 엔티티를 준영속 상태로 만드는 방법은 3가지다.
+    1. em.detach(entity); : 특정 엔티티만 준영속 상태로 전환한다.
+    2. em.clear(); : 영속성 컨텍스트를 완전히 초기화한다.
+    3. em.close(); : 영속성 컨텍스트를 종료한다.
+       
+  ### 3.6.1 엔티티를 준영속 상태로 전환 : detach()
+
+   ```java
+   public void testDetachedO {
+    //회원 엔티티 생성, 비영속 상태 
+    Member member = new Member(); 
+    member.setld("memberA"); 
+    member.setUsername ("회원A") ;
+    //회원 엔티티 영속 상태 
+    em.persist(member);
+    //회원 엔티티를 영속성 컨텍스트에서 분리, 준영속 상태 
+    em, detach (member) ;
+    transaction. commit () ; //트랜잭션 커밋
+  }
+   ```
+![ConnectionMaker](./images/3.12.PNG)
+![ConnectionMaker](./images/3.13.PNG)
+- detach()는 특정 엔티티를 준영속 상태로 만든다.
+- 영속성 컨텍스트에게 더는 해당 엔티티를 관리하지 말라는 것이다.
+- 1차 캐시부터 쓰기 지연 SQL 저장소까지 해당 엔티티를 관리하기 위한 모든 정보가 제거된다.
+- detach로 준영속 상태가 된 객체는 준영속 상태이므로 영속성 컨텍스트가 지원하는 어떤 기능도 동작하지 않는다.
+### 3.6.2 영속성 컨텍스트 초기화 : clear()
+```java
+// 엔티티 조회, 영속 상태
+Member member = em.find (Member .class, "memberA") ; 
+em.clear (》; //영속성 컨텍스트 초기화 
+// 준영속 상태
+member.setUsername ("changeName") ;
+```
+![ConnectionMaker](./images/3.14.PNG)
+![ConnectionMaker](./images/3.15.PNG)
+- em.clear()는 영속성 컨텍스트를 초기화해서 해당 영속성 컨텍스트의 모든 엔티티를 준영속 상태로 만든다.
+- changeName는 준영속 상태이므로 영속성 컨텍스트가 지원하는 변경 감지는 동작하지 않는다.
+
+### 3.6.3 영속성 컨텍스트 종료 : close()
+
+```java
+public void closeEntityManager() {
+  EntityManagerFactory emf = Persistence.createEntityManagerFactory("jpabook");
+  EntityManager em = emf.createEntityManager();
+  EntityTransaction transaction = em.getTransaction();
+  transaction.begin (); // [트랜잭션] 시작
+
+  Member member A = em.find (Member. class, MmemberA");
+  Member memberB = em.find (Member. class, "memberB") ;
+
+  transaction. commit () ; //[트랜잭션] - 커밋
+  em. close () ; //영속성 컨텍스트닫기 (종료)
+}
+```
+![ConnectionMaker](./images/3.16.PNG)
+![ConnectionMaker](./images/3.17.PNG)
+- 영속성 컨텍스트를 종료하면 해당 영속성 컨텍스트가 관리하던 영속 상태의 엔티티가 모두 준영속 상태가 된다.
+- 영속성 컨텍스트가 종료되어 더는 관리되지 않는다.
+- 개발자가 직접 준영속 상태로 만드는 일은 드물다.
+
+### 3.6.4 준영속 상태의 특징 
+  - 준영속 상태인 회원 엔티티는 어떻게 되는건지 보자.
+    - 거의 비영속 상태에 가깝다.
+      : 영속성 컨텍스트가 관리하지 않으므로 1차 캐시, 쓰기 지연, 변경 감지, 지연 로딩을 포함한 영속성 컨텍스트가 제공하는 어떠한 기능도 동작하지 않는다.
+    - 식별자 값을 가지고 있다.
+      : 비영속 상태는 식별자 값이 없을 수도 있지만 준영속 상태는 이미 한 번 영속 상태였으므로 반드시 식별자 값을 가지고 있다.
+    - 지연 로딩을 할 수 없다.
+      : 지연로딩은 실제 객체 대신 프록시 객체를 로딩해두고 해당 객체를 실제 사용할 때 영속성 컨텍스트를 통해 데이터를 불러오는 방법이다.
+        준영속 상태는 영속성 컨텍스트가 더는 관리하지 않으므로 지연 로딩 시 문제가 발생한다.
+        (LazyInitializationException,NoSessionException 등 예외처리가 발생한다.)
+
+### 3.6.5 병합 : merge()
+  - 준영속 상태의 엔티티를 다시 영속 상태로 변경하려면 병합을 사용하면된다.
+  - merge() 메소드는 준영속 상태의 엔티티를 받아서 그 정보로 새로운 영속 상태의 엔티티를 반환하다.
+  ```java
+    public <T> T merget(T entity);
+  ```
+  ```java
+    Mermber mergeMember = em.merge(member);
+  ```
+  ```java
+  public class ExamMergeMain {
+
+    static EntityManagerFactory emf = Persistence.createEntityManagerFactory(”jpabook”);
+
+    public static void main(String args[]) {
+      Member member = createMember("memberA", "회원1");      --------------------1.
+      merhber. setUsername ("회원명변경") ; // 준영속 상태에서 변경---------------2.
+      mergeMember(member);--------------3.
+    }
+
+    static Member createMember(String id, String username) { 
+    //== 영속성 컨텍스트 1 시작 ==//
+    EntityManager eml = emf.createEntityManager(); 
+    EntityTransaction txl = eml.getTransaction(); 
+    txl .begin () ;
+
+    Member member = new Member();
+    member.setId(id);
+    member.setUsername(username);
+    eml.persist(member);  
+
+    txl.commit();
+
+    eml. close () ; //영속성 컨텍스트1 종료
+                    //member 엔티티는 준영속 상태가 된다.
+
+    //== 영속성 컨텍스트1 종료 ==//
+    return member;
+  }
+
+  static void mergeMember(Member member) {
+
+  //== 영속성 컨텍스트2 시작 — I
+  EntityManager em2 = emf.createEntityManager(); 
+  EntityTransaction tx2 = em2.getTransact o n ();
+  tx2 .begin () ;
+
+  Jfember mergeMember = em2 .merge (member);
+  tx2.commit ();
+
+  //준영속 상태
+  System. out. println ("member = " + member. getUsername () ) ;
+
+  //영속 상태
+  System.out.println("mergeMember = n + mergeMember.getUsername());
+
+  System.out.println(nem2 contains member = n + em2 .contains(member));
+  System.out .println ("em2 contains mergeMember =" + em2.contains(mergeMember));
+  em2 .close();
+
+  //== 영속성 컨텍스트2 종료 ==//
+}
+  ```
+- 2.준영속 상태인 member 엔티티를 관리하는 영속성 컨텍스트가 더는 존재하지 않으므로 수정사항을 데이터베이스에 반영할 수 없다.
+- 3. em2.merge(member)를 호출해서 준영속 상태의 member 엔티티를 새로운 영속 상태의 엔티티로 반환해서 영속성 컨텍스트2가 관리하게 한다.
+     영속상태이므로 트랜잭션을 커밋할 때 수정했던 회원명이 데이터베이스에 반영된다.
+![ConnectionMaker](./images/3.18.PNG)
+1. merge()를 실행한다.
+2. 파라미터로 넘어온 준영속 엔티티의 식별자 값으로 1차 캐시에서 엔티티를 조회한다.
+2-1. 만약 1차 캐시에 엔티티가 없으면 데이터베이스에서 엔티티를 조회하고 1차 캐시에 저장한다.
+3. 조회한 영속 엔티티에 member 엔티티값을 채워 넣는다.(member 엔티티의 모든 값을 mergeMember에 밀어 넣는다.)
+   (commit 시 변경 감지 기능이 동작해서 회원1이 회원변경명으로 변경된다.)
+4. mergeMember를 반환한다.
+- 파라미터로 넘어온 엔티티는 병합 후에도 준영속 상태로 남아있다.
+- member와 mergeMember은 서로 다른 인스턴스다.
+
+```java
+  //Member mergeMember = em2.merge(member); //아래코드로 변경
+  member = em2.merge(member);
+```
+- 준영속 상태인 member은 이제 사용할 필요가 없다. 따라서 다음과 같이 준영속 엔티티를 참조하던 변수를 영속 엔티티를 참조하도록 변경하는 것이 안전하다.
+- 넣었던 그릇에 넣는게 안전하다.
+#### 비영속 병합
+```java
+Member member = new Member();
+Member newMember = em.merge (member);//비 영 속 병합 
+tx.commit () ;
+```
+- 병합은 파라미터로 넘어온 엔티티의 식별자 값으로 영속성 컨텍스트를 조회하고 찾는 엔티티가 없으면 데이터베이스에서 조회한다.
+- 만약 데이터베이스에서도 발견하지 못하면 새로운 엔티티를 생성해서 병합한다.
+- 병합은 준영속, 비영속을 신경쓰지 않는다.
+- 식별자 값으로 엔티티를 조회할 수 있으면 불러서 병합하고 조회할 수 없으면 새로 생성해서 병합한다.
+- 병합은 save or update 기능을 수행한다.
