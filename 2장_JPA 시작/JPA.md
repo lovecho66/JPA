@@ -55,7 +55,9 @@
     - http://www.h2database.com에 들어가서 All Platforms 또는 Platform-Independent Zip을 내려받아서 압축을 푼다.
     - 압축을 푼 곳에서 bin/h2.sh를 실행하면 H2 데이터베이스를 서버 모드로 실행한다.
     - H2 데이터베이스는 JVM 메모리 안에서 실행되는 임베디드 모드와 실제 데이터베이스처럼 별도의 서버를 띄워서 동작하는 서버모드가 있다.
+      
     ![ConnectionMaker](./images/2.8.PNG)
+    
     - H2 데이터베이스를 서버 모드로 실행한 후에 웹 브라우저에서 http ://localhost:8082를 입력하면 H2 데이터베이스에 접속할 수 있는 화면이 뜬다.
 
     ■ 드라이버 클래스: org.h2.Driver
@@ -126,7 +128,7 @@
     </dependencies>
   </project>
   ```
-- <dependencies>에 사용할 라이브러리를 지정한다.
+- dependencies 에 사용할 라이브러리를 지정한다.
 - groupId + artifactId + version만 적어주면 라이브러리를 메이븐 공식 저장소에서 내려받아 라이브러리에 추가해준다.
 - JPA에 하이버네이트 구현체를 사용하려면 많은 라이브러리가 필요하지만 핵심 라이브러리는 2가지다.
   - JPA, 하이버네이트(hibernate-entitymanager)는 JPA 표준과 하이버네이트를 포함하는 라이브러리로 핵심 라이브러리 2가지를 함께 내려받는다.
@@ -232,7 +234,7 @@
   ### 서론
   - JPA는 persistence.xml을 사용해서 필요한 설정 정보를 관리한다.
   - META-INF/persistence.xml 클래스 패스 경로에 있으면 별도의 설정없이 JPA가 인식할 수 있다.
-  
+  (^^ ㅇㄹㅅㅈ)
   ```xml
   <?xml version="l. Ofl encoding="UTF-8" ?>
   <persistence xmlns="http: //xmlns. j c p .org/xml/ns/persistence" version=n2 .1"〉
@@ -277,12 +279,13 @@
     value = "org.h2.Driver"
     ...
   ```
-  - JPA 표준 속성
+  - JPA 표준 속성 설정
     - javax.persistenc.jdbc.driver : JDBC 드라이버
     - javax.persistenc.jdbc.user : 데이터베이스 접속 아이디
     - javax.persistenc.jdbc.password : 데이터베이스 접속 비밀번호
     - javax.persistenc.jdbc.url : 데이터베이스 접속 URL
-  - 하이버네이트 속성
+  
+  - 하이버네이트 속성 설정
     - hibernate.dialect : 데이터베이스 방언 설정
 
   - javax.persistence로 시작하는 속성은 JPA 표준 속성으로 특정 구현체에 종속되지 않는다.
@@ -509,3 +512,4 @@
 ## 2.7 정리
 - JPA가 반복적인 JDBC API와 결과 값 매핑을 처리해준 덕분에 코드량이 상당히 많이 줄어든 것은 물론이고 심지어 SQL도 작성할 필요가 없었다.
 - 코드량을 줄이고 SQL을 자동 생성하는 것은 JPA가 제공하는 전체 기능 중 일부에 불과하니 계속 알아가자.
+
