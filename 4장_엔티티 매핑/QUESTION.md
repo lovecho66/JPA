@@ -80,4 +80,102 @@
     
 > 참고 사이트 : https://hudi.blog/java-final/
 
+### 2.enum 클래스
+1. 개념
+  ```java
+  public enum Type {
+      WALKING, RUNNING, TRACKING, HIKING
+  }
+  ```
+  - 서로 관련있는 상수들을 모아 집합으로 정의한다.
+  - enum 클래스 형을 기반으로 한 클래스형 선언을 한다.
+2. 특징
+  - 열거형으로 선언된 순서에 따라 0부터 index값을 가진다.(순차적으로 증가)
+  - enum 열거형으로 지정된 상수들은 모두 대문자로 선언한다.
+  - 열거형 변수들을 선언한 후 마지막에 세미콜론(;)을 찍지 않는다.
+  - 상수와 특정 값을 연결시킬 경우 마지막에 세미콜론(;)을 붙여줘야한다.
+3. enum 클래스 메소드 사용
+ 1) values() : 열거된 모든 원소를 배열에 담아 순서대로 반환한다.
+  ```java
+  ...
+  public static void main(String[] args) {
+      for(Type type : Type.values()) {
+          System.out.println(type);
+      }
+  }
+  ```
+  ```txt
+  WALKING
+  UNNING
+  TRACKING
+  HIKING
+  ```
+ 2) ordinal() : 원소에 열거된 순서를 정수로 반환한다.
+ ```java
+  ...
+  Type tp = Type.HIKING;       
+  System.out.println(tp.ordinal());
+  ```
+  ```txt
+  3
+  ```
+ 3) valueOf() : 매개변수로 주어진 String과 열거형에서 일치하는 이름을 갖는 원소를 반환한다. (없으면 IllegalArgumentException 예외 발생)
+```java
+...
+Type tp1 = Type.WALKING;
+Type tp2 = Type.valueOf("WALKING");
+ 
+System.out.println(tp1);
+System.out.println(tp2);
+```
+```txt
+WALKING
+WALKING
+```
+> 값 가져오는 방법은<br>1. enum형 객체를 만들거나(Type.WALKING) <br>2. valueOf()메소드를 시용해서(Type.valueOf("WALKING") 가져온다.
+4. 열거형 상수를 다른 값과 연결하기
+```java
+enum Type {
+
+// 상수("연결할 문자")
+  WALKING("워킹화"), RUNNING("러닝화")
+, TRACKING("트래킹화"), HIKING("등산화");
+ 
+final private String name;
+...
+}
+
+public class Shoes {
+    public static void main(String[] args) {
+        for(Type type : Type.values()){
+            System.out.println(type.getName());
+        }
+    }
+}
+```
+```txt
+워킹화
+러닝화
+트래킹화
+등산화
+```
+4. 클래스의 static final 이용해서 열거형 선언하기
+```java
+class Type {
+    static final String WALKING = "워킹화";
+    static final String RUNNING = "러닝화";
+    static final String TRACKING = "트래킹화";
+    static final String HIKING = "등산화";
+}
+ 
+public class Shoes {
+    public static void main(String[] args) {
+        String w = Type.WALKING;
+        System.out.println(w);
+    }
+}
+```
+```txt
+워킹화
+```
 ## 질문 및 답변
