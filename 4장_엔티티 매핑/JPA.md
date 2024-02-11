@@ -154,11 +154,25 @@ create table MEMBER (
 <property name = "hibernate.ejb.naming_strategy" value ="org.hibernate.ImprovedNamingStrategy">
 ```
 - java는 카멜 표기법을 사용하고 데이터베이스는 언더스코어를 주로 사용한다.
-- 엔티티와 테이블을 매핑하려고 하면 표기법 때문에 @Column 어노테이션의 name 속성으로 명시적으로 이름을 지어줘야했다.
+- 엔티티와 테이블을 매핑하려고 하면 표기법 때문에 @Column 어노테이션의 name 속성으로 명시적으로 이름을 지어줘야한다.
 - 하이버네이트는 org.hibernate.cfg.ImprovedNamingStrategy 클래스를 제공해서 테이블 명이나 컬럼 명이 생략되면 자바의 카멜 표기법을 테이블의 언더스코어 표기법으로 매핑한다.
-- roleType -> role_type
-- 
+
 ## 4.5 DDL 생성 기능
+```java
+@Entity
+@Table(name = "MEMBER")
+public class Member{
+
+    @Id
+    @Column(name="ID")
+    private String id;
+
+    @Column(name = "NAME", nullable = false, length = 10) //추가
+    private String username;
+    ... 
+}
+```
+1.  
 ## 4.6 기본 키 매핑
 ## 4.7 필드와 컬럼 매핑 : 레퍼런스
 ## 4.8 정리
