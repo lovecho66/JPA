@@ -172,8 +172,179 @@ public class Member{
     ... 
 }
 ```
-1.  
+1. 회원이름이 필수로 입력되야해서 null을 입력할 수 없게 nullable 옵션(null?)을 false(No)로 설정한다.
+2. 회원이름은 10자를 초과하면 안되니 length 를 10으로 설정한다.
+```sql
+create table MEMBER (
+    ID varchar(255) not null,
+    NAME varchar(10) not null,
+    primary key (ID)
+)
+```
+3. 1번과 2번처럼 매핑정보를 입력하면 그에 맞는 DDL을 생성해준다.
+```java
+@Entity(name="Member")
+@Table(name="MEMBER",uniqueConstraints = {!@uniqueConstraint(
+    name = "NAME_AGE_UNIQUE",    
+    columnNames = {"NAME","AGE"}    
+)}
+public class Member{
+    ...
+}
+```
+```sql
+ALTER TABLE MEMBER
+ADD CONSTRAINT NAME_AGE_UNIQUE UNIQUE (NAME, AGE)
+```
+4. @Table의 uniqueConstrains 속성을 가지고 유니크 제약조건을 걸어주면 실행된 DDL에서 유니크 제약 조건이 추가된 것을 볼 수 있다.
+5. length와 nullable,uniqueConstrains 속성을 포함해서 이런 기능들은 단지 DDL을 자동 생성할 때만 사용되고 JPA의 실행로직에는 영향을 주지 않는다.
+6. DDL 자동 생성 기능을 사용하지 않을때 필요는 없지만 그래도 개발자가 엔티티만 보고도 손쉽게 다양한 제약조건을 파악할 수 있다는 장점은 있다.
+   
 ## 4.6 기본 키 매핑
+### 4.6.1 기본 키 직접 할당 전략
+ 1. 기본키를 직접 할당하려면 @Id로 매핑하면된다.
+ 2. @Id 어노테이션을 적용할 수 있는 자바 타입이 있다.
+    - 자바 기본형
+    - 자바 래퍼형 (Integer)
+    - String
+    - java.util.Data
+    - java.math.BigDecimal
+    - java.math.BigInteger
+```java
+Board board = new Board(); 
+board.setld("idl") / / 기본 키직접 할당 
+em.persist(board);
+```
+ 3. 기본 키 직접 할당 전략은 em.persist()로 엔티티를 저장하기 전에 애플리케이션에서 기본키를 직접 할당하는 방법이다.
+ 4. 식별자 값 없이 저장하면 예외가 발생하는데 이는 JPA 표준에 정의되어 있지 않다.
+    그래서 하이버네이트를 구현체로 사용하면 JPA 최상위 예외인 javax.persistence.PersistenceException 예외가 발생하는데
+    내부에 하이버네이트 예외인 org.hibernate.id.ldentifierGenerationException 예외를 포함하고 있다는 점을 알고 있자.
+    
+### 4.6.2 IDENTITY 전략
+ 1. IDENTITY는 기본키 생성을 데이터베이스에 위임하는 전략이다.
+ 2. 주로 MySQL,PostgreSQL,SQL Server,DB2에서 사용한다.
+ 3. IDENTITY전략은 데이터베이스 값을 저장하고 나서야 기본 키 값을 구할 수 있을 때 사용한다.
+    예시) MYSQL의 AUTO_INCREMENT 기능
+```java
+@Entity
+public class Board {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    ...
+}
+```
+ 4. 데이터베이스에서 식별자를 생성하는 경우 @GeneratedValue 어노테이션을 사용해야하고 식별자 생성 전략을 선택해줘야 하는데
+    IDENTITY 전략으로 strategy에 GenerationType.IDENTITY를 지정한다.
+```java
+private static void logic(EntityManager em) {
+Board board = new Board(); 
+em.persist(board);
+System.out.println(Mboard.id = n + board.getId()); //출력 board.id = 1
+}
+```
+ 5. em.persist()를 호출해서 엔티티를 저장한 직후에 할당된 식별자 값을 출력하니 1이 나온다.
+ 6. 출력된 1은 저장 시점에 데이터베이스가 생성한 값을 JPA가 조회한거다.
+ 7. 엔티티가 영속 상태가 되려면 식별자가 반드시 필요한데 IDENTITY 식별자 생성 전략은 엔티티를 데이터베이스에 저장해야지만 식별자를 구할 수 있으므로
+    persist()를 호출하는 즉시 INSERT SQL이 데이터베이스에 전달된다. 따라서 이 전략은 트랜잭션을 지원하는 쓰기 지연이 동작하지 않는다.
+ 8. IDENTITY 전략은 데이터를 데이터베이스에 INSERT한 후에 기본키를 값을 조회할 수 있어서 JPA가 추가로 데이터베이스를 조회해야한다.
+    하이버네이트는 JDBC3에 추가된 Statement.getGeneratedKeys()를 사용해서 데이터베이스와 한번만 통신할 수 있게 한다.
+    
+### 4.6.3 SEQUENCE 전략
+ 1. 데이터베이스 시퀀스는 유일한 값을 순서대로 생성하는 특별한 데이터베이스 오브젝트다.
+ 2. SEQUENCE 전략은 이 시퀀스를 사용해서 기본키를 생성한다.
+ 3. SEQUENCE 전략은 시퀀스를 지원하는 오라클,PostgreSQL,DB2,H2 데이터베이스에서 사용할 수 있다.
+
+```sql
+CREATE TABLE BOARD (
+ID BIGINT NOT NULL PRIMARY KEY, 
+DATA VARCHAR(255)
+
+//시퀀스 생성
+CREATE SEQUENCE B0ARD_SEQ START WITH 1 INCREMENT BY 1;
+```
+ 4. SEQUENCE 전략을 사용하려면 먼저 데이터베이스에 시퀀스를 생성해야한다.
+```java
+@Entity
+@SequenceGenerator(
+    name = "BOARD_SEQ_GENERATOR",
+    sequenceName = "BOARD_SEQ",    //매핑할 데이터베이스 시퀀스 이름
+    initiaValue=1,allocationSize =1
+)
+public class Board {
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "BOARD_SEQ_GENERATOR")
+    private Long id;
+    ...
+}
+```
+ 5. @SequenceGenerator를 사용해서 BOARD_SEQ_GENERATOR라는 시퀀스 생성기를 등록했다. (@GeneratedValue 옆에 시퀀스 생성기 작성 가능)
+ 6. sequenceName 속성의 이름으로 BOARD_SEQ 지정했는데 이는 JPA가 시퀀스 생성기를 실제 데이터베이스 BOARD_SEQ 시퀀스와 매핑했다는 거다.
+ 7. 시퀀스 키로 사용할 필드에 GenerationType.SEQUENCE로 설정하고 generator = "BOARD_SEQ_GENERATOR"로 방금 등록한 시퀀스 생성시를 선택하게 매핑 정보를 입력한다
+```java
+private static void logic(EntityManager em) {
+Board board = new Board(); 
+em.persist(board);
+System.out.println(Mboard.id = n + board.getId()); //출력 board.id = 1
+}
+```
+ 8. 위 IDENTITY 전략에서도 보여준 코드와 동일한데 SEQUENCE 전략을 사용하면 결과는 동일하게 나온다. 단지, 내부 동작 방식이 다르다.
+ 9. SEQUENCE 전략의 내부 동작 방식을 보면, em.persist()를 호출할 때 먼저 데이터베이스 시퀀스를 사용해서 식별자를 조회한다. 그리고 조회한 식별자를 엔티티에 할당한 후에 엔티티를 영속성 컨텍스트에 저장한다. 이후 트랜잭션을 커밋해서 플러시가 일어나면 엔티티를 데이터베이스에 저장한다.
+10. @SequenceGenerator 속성 저리
+    |속성|기능|기본값|
+    |-----|---------------|-------|
+    |name |식별자 생성기 이름이다.|필수입력|
+    |sequenceName |데이터베이스에 등록되어있는 시퀀스 이름이다.|hibernate_sequence|
+    |initialValue|DDL 생성시에만 사용되는 속성으로 시퀀스 DDL을 생성할 때 처음 시작하는 수를 지정한다.|1|
+    |allocationSize|시퀀스 한 번 호출에 증가하는 수(성능 최적화에 사용됨)|50|
+    |catalog,schema|데이터베이스 catalog,schema 이름||
+11. 위 속성으로 매핑할 DDL은 아래와 같다.
+```sql
+create sequence [sequenceName]
+start with [initialValue] increment by [allocationSize]
+```
+12.SEQUENCE 전략과 최적화에 대해서 추가적으로 보자면
+  1. 식별자를 구하려고 데이터베이스 시퀀스를 조회하고 조회한 시퀀스를 기본키 값으로 사용해서 데이터베이스에 저장한다. 이렇게 SEQUENCE 전략은 식별자를 조회하는 추가작업이 필요해서 데이터베이스와 2번 통신을 하게 된다.
+  2. 그래서 JPA는 시퀀스에 접근하려는 횟수를 줄이기 위해 @SequenceGenerator.allocationSize를 사용한다.
+  3. 기본값 50이면 시퀀스를 한번에 50 증가시킨 다음에 1~50까지는 메모리에서 식별자를 할당하는거다. 그리고 또 51이 되면 시퀀스 값을 100으로 증가시킨 다음 51~100까지 메모리에서 식별자를 할당한다.
+  4. 이렇게 시퀀스 값을 선점하면 여러 JVM이 동시에 동작해도 기본키 값이 충돌되지 않는 장점이 있다.
+  5. 반면에 데이터베이스에 직접 접근해서 데이터를 등록할 때 시퀀스 값이 한번에 많이 증가한다는 점도 있다. 이런 상황이 부담스럽고 INSERT 성능이 중요하지 않으면 allocationSize 값을 1로 설정하면된다.
+  6. 이러한 기능도 앞서 설명한 hibernate.id.new_generator_mappings 속성을 true로 설정해야지 설명한 최적화 방법이 저장된다. 
+    
+### 4.6.4 TABLE 전략
+1. 테이블 전략은 키 생성 전용 테이블을 하나 만들고 여기에 이름과 값으로 사용할 컬럼을 만들어 데이터베이스 시퀀스를 흉내내는 전략이다.
+```sql
+create table MY_SEQUENCES (
+    sequence_name varchar(255) not null ,
+    next_val bigint,
+    primary key ( sequence_name )
+```
+2. TABLE 전략을 사용하려면 먼저 키 생성 용도로 사용할 테이블을 만든다.
+```java
+@Entity
+@TableGenerator(
+    name = "BOARD_SEQ_GENERATOR"
+    table = "MY_SEQUENCES"
+    pkColumnValue = "BOARD_SEQ", allocationSize = 1
+)
+public class Board {
+    @Id
+    @GeneratedValue(strategy = GenerationType.TABLE, generator = "BOARD_SEQ_GENERATOR")
+    private Long id;
+    ...
+}
+```
+1. @TableGenerator를 사용해서BOARD_SEQ_GENERATOR라는 테이블 키 생성기를 등록한다.
+2. MY_SEQUENCES 테이블을 키 생성용 테이블로 매핑하고 BOARD_SEQ와 시퀀스와 매핑했다.
+3. TABLE 전략을 사용하기 위해 GenerationType.TABLE로 설정하고 테이블 생성기를 사용하기 위해 generator = "BOARD_SEQ_GENERATOR" 입력했다.
+4. TABLE 전략은 시퀀스대신에 테이블을 사용한다는 것만 제외하면 SEQUENCE 전략과 내부방식이 같다.
+5. 키 생성용 테이블에 다음 할당할 데이터값이 들어가 있지 않아도 JPA가 값을 INSERT하면서 초기화하므로 값을 미리 넣어둘 필요는없다.
+6. @TableGenerator 속성 기능
+
+
+### 4.6.5 AUTO 전략
+### 4.6.6 기본 키 매핑 정리
+
 ## 4.7 필드와 컬럼 매핑 : 레퍼런스
 ## 4.8 정리
 ## 실전 예제 | 1. 요구사항 분석과 기본 매핑
