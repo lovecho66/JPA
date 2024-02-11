@@ -339,10 +339,36 @@ public class Board {
 3. TABLE 전략을 사용하기 위해 GenerationType.TABLE로 설정하고 테이블 생성기를 사용하기 위해 generator = "BOARD_SEQ_GENERATOR" 입력했다.
 4. TABLE 전략은 시퀀스대신에 테이블을 사용한다는 것만 제외하면 SEQUENCE 전략과 내부방식이 같다.
 5. 키 생성용 테이블에 다음 할당할 데이터값이 들어가 있지 않아도 JPA가 값을 INSERT하면서 초기화하므로 값을 미리 넣어둘 필요는없다.
-6. @TableGenerator 속성 기능
-
-
+![ConnectionMaker](./images/tstrategy.PNG)
+7. @TableGenerator 속성 기능
+   |속성|기능|기본값|
+   |-----|---------------|-------|
+   |name|식별자 생성기 이름 지정한다.|필수|
+   |table|키생성 테이블 이름을 지정한다.|hibernate_sequences|
+   |pkColumnName|시퀀스 컬럼명을 지정한다. |sequence_name(필수)|
+   |valueColumnName|시퀀스 값 컬럼명을 지정한다. |next_val(필수)|
+   |pkColumnValue|키로 사용할 값 이름을 지정한다.|엔티티 이름|
+   |initalValue|초기 값. 마지막|0|
+   |allocationSize|시퀀스 한번 호출에 증가하는 수(성능최적화에 사용됨)|50|
+   |catalog,schema|데이터베이스 catalog,schema 이름||
+   |uniqueConstraint(DDL)|유니크 제약 조건을 지정할 수 있다.||
+   ![ConnectionMaker](./images/tmapping.PNG)
+8. TABLE 전략과 최적화를 알아보면 TABLE 전략은 값을 조회하면서 SELECT 쿼리를 사용하고 다음 값으로 증가시키기 위해 UPDATE 쿼리를 사용한다. 이 전략은 SEQUENCE 전략과 비교해서 데이터베이스와 한번 더 통신하는 단점이 있다. 이러한 단점을 보함하고자 @TableGenerator.allocationSize를 사용해서 최적화시킨다. 
 ### 4.6.5 AUTO 전략
+```java
+@Entity
+public class Board {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO) 
+    private Long id;
+    ...
+}
+```
+1. AUTO는 선택한 데이터베이스 방언에 따라 IDENTITY,SEQUENCE,TABLE 전략 중 하나를 자동으로 선택한다.
+   (스키마 자동 생성 기능을 사용한다면 미리 준비가 되어 있어야할 SEQUENCE와 키 생성 용 테이블이 없어도 JPA가 적절한 시퀀스나 키 생성용 테이블을 만들어준다)
+3. 데이터베이스를 변경해도 코드를 수정할 필요가 없다.
+4. 특히 키 생성 전략이 아직 확정되지 않은 개발 초기 단계나 프로토타입 개발 시 편리하게 사용가능하다.
+
 ### 4.6.6 기본 키 매핑 정리
 
 ## 4.7 필드와 컬럼 매핑 : 레퍼런스
