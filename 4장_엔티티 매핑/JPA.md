@@ -147,9 +147,17 @@ create table MEMBER (
     - 테스트 서버는 update 또는 validate를 설정한다.
     - 스테이징과 운영서버는 validate 또는 none을 설정한다.
 8. JPA는 2.1부터 스키마 자동생성 기능을 표준으로 지원한다.
-    - none,create,create-drop,drop 옵션 지원
-    - 하이버네이트의 hibernate.hbm2ddl.auto 속성이 지원하는 update,validate 옵션은 지원하지 않는다.
-    - 
+    - none,create,create-drop,drop 옵션 사용가능하다.
+    - update,validate 옵션은 지원하지 않는다.
+9. hibernate.ejb.naming_strategy 속성을 사용하면 이름 매핑 전략을 변경할 수 있다.
+```xml
+<property name = "hibernate.ejb.naming_strategy" value ="org.hibernate.ImprovedNamingStrategy">
+```
+- java는 카멜 표기법을 사용하고 데이터베이스는 언더스코어를 주로 사용한다.
+- 엔티티와 테이블을 매핑하려고 하면 표기법 때문에 @Column 어노테이션의 name 속성으로 명시적으로 이름을 지어줘야했다.
+- 하이버네이트는 org.hibernate.cfg.ImprovedNamingStrategy 클래스를 제공해서 테이블 명이나 컬럼 명이 생략되면 자바의 카멜 표기법을 테이블의 언더스코어 표기법으로 매핑한다.
+- roleType -> role_type
+- 
 ## 4.5 DDL 생성 기능
 ## 4.6 기본 키 매핑
 ## 4.7 필드와 컬럼 매핑 : 레퍼런스
