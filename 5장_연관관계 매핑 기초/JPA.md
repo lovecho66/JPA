@@ -58,6 +58,7 @@ JOIN TEAM T ON M.TEAM_ID = T.TEAM_ID
 WHERE M.MEMBER_ID =  'member1'
 ```
 3. 데이터베이스는 외래키를 사용해서 연관관계를 탐색할 수 있다. 이를 join이라고 한다.
+   - 외래키 하나로 서로 조회가 가능하다.
 ### 5.1.3 객체 관계 매핑
 ![ConnectionMaker](./images/5.4.PNG)   
 ```java
