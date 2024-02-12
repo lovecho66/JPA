@@ -525,6 +525,7 @@ public class Member {
 }
 ```
 - @Id가 필드에 있으므로 @Access (AccessType. FIELD)로 설정한 것과 같다. 따라서 @Access 생략해도된다.
+  (private 여도 접근이 가능하다.)
 ```java
 @Entity
 @Access (AccessType. PROPERTY)
