@@ -306,7 +306,7 @@ start with [initialValue] increment by [allocationSize]
 12.SEQUENCE 전략과 최적화에 대해서 추가적으로 보자면
   1. 식별자를 구하려고 데이터베이스 시퀀스를 조회하고 조회한 시퀀스를 기본키 값으로 사용해서 데이터베이스에 저장한다. 이렇게 SEQUENCE 전략은 식별자를 조회하는 추가작업이 필요해서 데이터베이스와 2번 통신을 하게 된다.
   2. 그래서 JPA는 시퀀스에 접근하려는 횟수를 줄이기 위해 @SequenceGenerator.allocationSize를 사용한다.
-  3. 기본값 50이면 시퀀스를 한번에 50 증가시킨 다음에 1~50까지는 메모리에서 식별자를 할당하는거다. 그리고 또 51이 되면 시퀀스 값을 100으로 증가시킨 다음 51~100까지 메모리에서 식별자를 할당한다.
+  3. 기본값 50이면 시퀀스를 한번에 50 증가시킨 다음에 1 ~ 50까지는 메모리에서 식별자를 할당하는거다. 그리고 또 51이 되면 시퀀스 값을 100으로 증가시킨 다음 51 ~ 100까지 메모리에서 식별자를 할당한다.
   4. 이렇게 시퀀스 값을 선점하면 여러 JVM이 동시에 동작해도 기본키 값이 충돌되지 않는 장점이 있다.
   5. 반면에 데이터베이스에 직접 접근해서 데이터를 등록할 때 시퀀스 값이 한번에 많이 증가한다는 점도 있다. 이런 상황이 부담스럽고 INSERT 성능이 중요하지 않으면 allocationSize 값을 1로 설정하면된다.
   6. 이러한 기능도 앞서 설명한 hibernate.id.new_generator_mappings 속성을 true로 설정해야지 설명한 최적화 방법이 저장된다. 
@@ -393,16 +393,176 @@ public class Board {
 ### 4.7.1 @Column
 ![ConnectionMaker](./images/column1.PNG)
 ![ConnectionMaker](./images/column2.PNG)
-1. @Column 어노테이션은 컬럼을 매핑한다.
-2. name과 nullable 속성이 잘 사용된다.
+
+- nullbacle(DDL 생성기능)
+```java
+@Column(nullable = false) 
+private String data;
 ```
+```sql
+data varchar(255) not nul
+```
+- uniqe(DDL 생성 기능)
+```java
+@Column(unique = true) 
+private String username;
+```
+```sql
+alter table Tablename
+add constraint UK_Xxx unique (username)
+```
+
+- columnDefinition(DDL 생성 기능)
+```java
+@Column (columnDefinition = "varchar(100) default 'EMPTY'") 
+private String data;
+```
+```sql
+data varchar(100) default 'EMPTY'
+```
+
+- length(DDL 생성 기능)
+```java
+©Column(length = 400) 
+private String data;
+```
+```sql
+data varchar(400)
+```
+
+- precision, scale(DDL 생성 기능)
+```java
+@Column(precision = 10, scale = 2) 
+private BigDecimal cal;
+```
+```sql
+//생 성 된 DDL
+cal numeric(10,2) --H2, PostgreSQL 
+cal number (10,2) --오 라 클 
+cal decimal(10,2) --MySQL
+```
+
 ### 4.7.2 @Enumerated
-1. @Enumerated 어노테이션은 자바의 enum 타입을 매핑한다.
+![ConnectionMaker](./images/enumerated.PNG)
+```java
+enum RoleType {
+    ADMIN, USER
+}
+
+public class Member(){
+    ...
+    @Enumerated(EnumType.STRING) 
+    private RoleType roleType;
+}
+
+public static main(){
+    member. setRoleType (RoleType.ADMIN) ; //-> DB에 문자 ADMIN으로 저장됨
+}
+```
+- @Enumerated 어노테이션은 자바의 enum 타입을 매핑한다.
+- RoleType.ADMIN에는 ADMIN 0 이 들어간다. (USER 1값)
+- EnumType.ORDINAL은 정의된 순서의 값을 저장한다. 데이터베이스에 저장되는 데이터 크기가 작다는 장점이 있지만 이미 저장된 ENUM의 순서를 변경할 수 없는다는 단점도 있다.
+- EnumType.STRING 정의한 이름 그대로가 들어간다. 저장된 enum의 순서가 바뀌거나 enum이 추가되도 안전하다는 장점이 있지만 데이터베이스에 저장되는 데이터 크기가 ORNIAL에 비해크다.
+- 추가나 변경이 많이 일어나는 것은 숫자 데이터를 저장하는 ORDINAL보단 String을 더 권장한다.
 ### 4.7.3 @Temporal
-1. @Temporal 어노테이션은 날짜 타입을 매핑한다. 
+![ConnectionMaker](./images/temporal.PNG)
+```java
+@Temporal(TemporalType.DATE) 
+private Date date; //날짜
+
+@Temporal(TemporalType.TIME) 
+private Date time; //시간
+
+@Temporal(TemporalType.TIMESTAMP) 
+private Date timestamp; //날짜와 시간
+```
+- @Temporal 어노테이션은 날짜 타입을 매핑한다.
+- ©Temporal을 생략하면 자바의 Date와 가장 유사한 timestamp로 정의된다.
+- 데이터베이스 방언에 따른 예약어
+  - datetime： MySQL
+  - timestamp： H2, 오라클，PostgreSQL
 ### 4.7.4 @Lob
-1. @Lob은 BLOB,CLOB 타입을 매핑한다.
+```java
+@Lob
+private String lobString;
+@Lob
+private byte[] lobByte;
+```
+```sql
+//오라클
+lobString clob, 
+lobByte blob,
+
+//MySQL
+lobString longtext,
+lobByte longblob,
+
+//PostgreSQL
+lobString text,
+lobByte oid,
+```
+- @Lob은 BLOB,CLOB 타입을 매핑한다.
+- @Lob에는 지정할 수 있는 속성이 없다. 대신 매핑하는 필드 타입이 문자면 CLOG으로 매핑하고 나머지는 BLOG으로 매핑한다.
 ### 4.7.5 @Transient
-1. @Transient 어노테이션은 특정 필드를 데이터베이스에 매핑하지 않는다.
-2. ### 4.7.6 @Access
-1. @Access 어노테이션은 jpa가 엔티티에 접근하는 방식을 지정한다.
+```java
+@Transient
+private Integer temp;
+```
+- @Transient 어노테이션은 특정 필드를 데이터베이스에 매핑하지 않는다.
+- 데이터베이스에 저장하지 않고 조회하지도 않는다.
+- 객체에 임시로어떤 값을 보관하고 싶을 때 사용한다.
+### 4.7.6 @Access
+- @Access 어노테이션은 JPA가 엔티티에 접근하는 방식을 지정한다.  
+```java
+@Entity
+@Access (AccessType. FIELD)
+public class Member {
+    @Id
+    private String id;
+    private String datal;
+    private String data2;
+    ...
+}
+```
+- @Id가 필드에 있으므로 @Access (AccessType. FIELD)로 설정한 것과 같다. 따라서 @Access 생략해도된다.
+```java
+@Entity
+@Access (AccessType. PROPERTY)
+public class Member {
+    private String id;
+    private String datal;
+    private String data2;
+
+    @Id
+    public String getld() {
+    return id;
+    }
+    @Column
+    public String getDatal() {
+    return datal;
+    }
+}
+```
+- @Id가 프로퍼티에 있으므로 ©Access (AccessType. PROPERTY) 로 설정한 것과 같다. 따라서 @Access는 생략해도 된다.
+```java
+@Entity
+@Access (AccessType. PROPERTY)
+public class Member {
+    @Id
+    private String id;
+
+    @Transient
+    private String firstName;
+
+    @Transient
+    private String lastName;
+    @Access(AccessType. PROPERTY)
+    public String getFullName() { 
+        return firstName + lastName;
+    }
+}
+```
+- @Id가 필드에 있으므로 기본은 필드 접근 방식을 사용하고 getFullName()만 프로퍼티 접근 방식을 사용한다. 따라서 회원 엔티티를 저장하면 회원 테이블의 
+FULLNAME 컬럼에 firstName + lastName의 결과가 저장된다.
+- 필드 접근 방식과 프로퍼티 접근 방식을 함께 사용할 수도 있다.
+  
