@@ -5,14 +5,9 @@
  - 다중성과 단방향,양방향을 고려한 모든 연관관계를 본다. 
 
 ## 6.1 다대일
-  <figure class="half">  
-    <a href="link"> <img src="./images/tstrategy.PNG"></a>  
-    <a href="link"> <img src="./images/tstrategy.PNG"></a>  
-    <figcaption>
-      2개이미지.
-    </figcaption>
-  </figure>
-
+  
+![image.jpg1](./images/6.1_1.PNG) |![image.jpg2](./images/6.2_1.PNG)
+--- | --- | 
 ## 6.2 일대다
 ## 6.1 일대일
 ## 6.1 다대다
