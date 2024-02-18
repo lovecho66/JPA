@@ -176,4 +176,19 @@ for (Course course : student2.getCourses()) {
   - joinColumns : 현재 방향인 회원과 매핑할 조인 컬럼 정보를 지정한다.(MEMBER_ID)
   - inverseJoinColumns : 반대 방향인 상품과 매핑할 조인 컬럼 정보를 지정한다. (PRODUCT_ID)
 - MEMBER_PRODUCT 테이블은 다대다 관계를 일대다,다대일 관계로 풀어내기 위해 필요한 연결 테이블일 뿐이고 @ManyToMany로 매핑한 덕분에 다대다 관계를 사용할 때는 이 연결 테이블을 신경쓰지 않아도 된다.
-#### 다대다 저장
+  
+#### 다대다 단방향 저장
+![image.jpg1](./images/6.4_6.PNG)|![image.jpg2](./images/6.4_7.PNG)
+--- | --- | 
+- 다대다 단방향 관계에서 중간 테이블을 두어 일대다,다대일로 풀어낸 상태에서 회원과 상품의 연관관계를 설정하면 연결 테이블에도 값이 저장된다.
+- 중간 테이블인 MEMBER_PRODUCT에도 INSERT SQL이 실행된 것을 볼 수 있다.
+  
+#### 다대다 단방향 탐색
+![image.jpg1](./images/6.4_8.PNG)|![image.jpg2](./images/6.4_9.PNG)
+- member.getProduct()를 호출하면 SQL이 실행된다.
+- 연결 테이블인 MEMBER_PRODUCT 테이블과 상품 테이블을 조인해서 연관된 상품을 조회한다.
+- @ManyToMany 덕분에 복잡한 다대다 관계를 애플리케이션에서는 아주 단순하게 사용할 수 있게 되었다.
+
+### 6.4.2 다대다: 양방향
+
+  
