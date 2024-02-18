@@ -139,9 +139,98 @@ org.hibernate.Hibernate. initialize (order .getMember ()) ; / / 프록시 초기
 하이버네이트의 initalize()메소드를 사용하면 프록시를 강제로 초기화할 수 있다.
 JPA 표준에는 프록시 강제 초기화 메소드가 없고 단지 초기화 여부만 확인할 수 있다. 
 
- 
-  
 ## 8.2 즉시로딩과 지연로딩
+## 8.2.1 즉시로딩
+```java
+@Entity
+public class Member {
+  // …
+  @ManyToOne (fetch = FetchType.EAGER)
+  @JoinColumn(name = "TEAM_ID")
+  private Team team;
+}
+```
+- 즉시로딩 : 엔티티를 조회할 때 연관된 엔티티도 함께 조회한다.
+- 즉시로딩은 (@ManyToMany(fetch = FetchType.EAGER))로 설정한다.
+
+![image.jpg1](./images/8.1_8.PNG) |![image.jpg2](./images/8.1_9.PNG)
+|----|----|
+- 회원을 조회하는 순간 연관된 팀 엔티티도 같이 조회한다.
+- JPA 구현체는 즉시 로딩을 최적화하기 위해 가능하면 조인쿼리를 사용한다.
+- 회원과팀을 조인해서 쿼리 한번으로 두 엔티티를 모두 조회한다.
+
+  
+>NULL 제약조건과 JPA 조인 전략
+: 즉시 로딩 실행 SQL에서 JPA가 내부조인(INNER JOIN)이 아닌 외부조인(LEFT OUTER JOIN)을 사용한 것을 유심히 봐야한다.<br>
+  회원 테이블에 TEAM_ID 외래키는 NULL값을 허용하고 있다. JPA는 NULL인경우까지 고려해 외부조인을 사용한다.
+  그러나 내부조긴이 성능최적화에서 더 유리하다. 외래키에 NOT NULL 제약조건 설정하면 값있는 걸 보장하니 그때부터 내부조인만 사용해도된다.
+  @JoinColumn에 nullable= false을 설정해서 이 외래키는 NULL값을 허용하지 않는다고 알려주면 JPA는 외부 조인 대신에 내부조인을 사용한다.
+```java
+  @Entity
+  public class Member {
+    // …
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "TEAM_ID", nullable = false)
+    private Team team;
+    ...
+  }
+```
+  > nullable 설정에 따른 조인 전략
+    ■ @JoinColumn(nullable - true)： NULL 허용(기본값), 외부 조인 사용 
+    ■ @JoinColumn(nullable - false)： NULL 허용하지 않음, 내부 조인 사용
+      또는 다음처럼 @ManyToOne.optional = false로 설정해도 내부 조인을 사용한다.
+  ```java
+  @Entity
+  public class Member {
+    // …
+    @ManyToOne(fetch = FetchType.EAGER,optical =false)
+    @JoinColumn(name = "TEAM_ID", nullable = false)
+    private Team team;
+    ...
+  }
+  ```
+> JPA는 선택적 관계면 외부 조인을 사용하고 필수 관계면 내부 조인을 사용한다.
+## 8.2.2 지연로딩
+```java
+@Entity
+public class Member {
+  // …
+  @ManyToOne (fetch = FetchType.LAZY)
+  @JoinColumn(name = "TEAM_ID")
+  private Team team;
+}
+```
+- 지연로딩 : 연관된 엔티티를 실제 사용할 때 조회한다.
+- 지연로딩은 (@ManyToMany(fetch = FetchType.LAZY))로 설정한다.
+
+![image.jpg1](./images/8.1_10.PNG)
+- 회원만 조회하고 팀은 조회하지 않는다.
+```java
+Team team = member.getTeam(); 
+```
+- 대신 조회한 회원의 TEAM 멤버변수에 프록시 객체를 넣어둔다.
+- 이 프록시 객체는 실제 사용될 때까지 로딩을 미룬다.
+
+```java
+team.getName(); //팀 객체 실제 사용
+```
+- 실제 데이터가 필요한 순간이 되어서야 데이터베이스를 조회해서 프록시 객체를 초기화한다.
+```sql
+SELECT * FROM MEMBER
+WHERE MEMBER_ID = 'memberl'
+```
+- em.find (Member. class, "memberl") 호줄 시 실행되는 SQL이다.
+```sql
+SELECT * FROM TEAM
+WHERE TEAM ID = 'teaml'
+```
+- team.getName () 호출로 프록시 객체가 초기화되면서 실행되는 SQL이다.
+> 조회 대상이 영속서 컨텍스트에 있으면 프록시 객체를 사용할 이유가 없다. 따라서 프록시가 아닌 실제 객체를 사용한다.
+
+## 8.2.3 즉시로딩, 지연로딩 정리
+- 지연로딩은 연관된 엔티티를 프록시로 조회하고 프록시를 실제 사용할 때 초기화하면서 데이터베이스를 조회한다.
+- 즉시로딩은 연관된 엔티티를 즉시 조회하고 하이버네이트는 가능하면 sql 조인을 사용해서 한번에 조회한다.
+
 ## 8.3 지연로딩 활용
 ## 8.4 영속성 전이 : CASCADE
 ## 8.5 고아 객체
@@ -157,4 +246,4 @@ JPA 표준에는 프록시 강제 초기화 메소드가 없고 단지 초기화
 
 ```java
 
-```
+``` 
