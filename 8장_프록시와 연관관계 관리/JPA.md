@@ -48,7 +48,7 @@ Member member = em.getReference(Member.class, "memberl");
 #### 프록시 객체의 초기화
 ![image.jpg1](./images/8.1_4.PNG)
 - 프록시 객체의 초기화는 연관된 객체를 실제로 사용하기 위해 메소드를 호출할 때 데이터베이스를 조회해서 실제 엔티티 객체를 생성하는 것을 말한다.
-- member.getName()할 때 프록시 객체의 초기화가 된다.
+- member.getName()로 실제 사용할 때 프록시 객체의 초기화가 된다.
   
 #### 프록시 클래스 예상코드
 
