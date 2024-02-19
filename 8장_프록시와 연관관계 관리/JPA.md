@@ -153,7 +153,7 @@ public class Member {
 - 즉시로딩 : 엔티티를 조회할 때 연관된 엔티티도 함께 조회한다.
 - 즉시로딩은 (@ManyToMany(fetch = FetchType.EAGER))로 설정한다.
 
-![image.jpg1](./images/8.1_8.PNG) |![image.jpg2](./images/8.1_9.PNG)
+![image.jpg1](./images/8.2_1.PNG) |![image.jpg2](./images/8.2_2.PNG)
 |----|----|
 - 회원을 조회하는 순간 연관된 팀 엔티티도 같이 조회한다.
 - JPA 구현체는 즉시 로딩을 최적화하기 위해 가능하면 조인쿼리를 사용한다.
@@ -203,7 +203,7 @@ public class Member {
 - 지연로딩 : 연관된 엔티티를 실제 사용할 때 조회한다.
 - 지연로딩은 (@ManyToMany(fetch = FetchType.LAZY))로 설정한다.
 
-![image.jpg1](./images/8.1_10.PNG)
+![image.jpg1](./images/8.2_3.PNG)
 - 회원만 조회하고 팀은 조회하지 않는다.
 ```java
 Team team = member.getTeam(); 
@@ -232,12 +232,12 @@ WHERE TEAM ID = 'team1'
 - 즉시로딩은 연관된 엔티티를 즉시 조회하고 하이버네이트는 가능하면 sql 조인을 사용해서 한번에 조회한다.
 
 ## 8.3 지연로딩 활용
-![image.jpg1](./images/8.1_11.PNG)
+![image.jpg1](./images/8.3_1.PNG)
 - Member와 연관된 Team은 자주 함께 사용되서 [즉시로딩]으로 설정했다.
 - Member와 연관된 Order은 가끔 사용되서 [지연로딩]으로 설정했다.
 - Order와 연관된 Product는 자주 함께 사용되서 [즉시로딩]으로 설정했다.
   
-![image.jpg1](./images/8.1_12.PNG) |![image.jpg2](./images/8.1_13.PNG)
+![image.jpg1](./images/8.3_2.PNG) |![image.jpg2](./images/8.3_3.PNG)
 - Member과 Team의 연관관계를 FetchType.EAGER로 설정했다.
 - 따라서 회원 엔티티를 조회 하면 연관된 팀 엔티티도 즉시 조회한다.
 - 회원 엔티티와 팀 엔티티를 JOI해서 한번에 조회한다. (SQL실행)
@@ -248,7 +248,7 @@ WHERE TEAM ID = 'team1'
 - member.getTeam()로 실제 주문내역을 사용할때 주문내역 조회하고 엔티티를 생성해서 반환받는다. (주문내역 SQL)
 
 ### 8.3.1 프록시와 컬렉션 래퍼
-![image.jpg1](./images/8.1_13.PNG)
+![image.jpg1](./images/8.3_3.PNG)
 - 즉시로딩한 객체는 실선으로 표현했고 지연로딩한 객체는 점선으로 표현했다.
 - 지연로딩을 사용하면 실제 엔티티가 아닌 프록시 객체를 사용한다.
 - 프록시 객체는 실제로 자신이 사용되기전까지는 데이터베이스 실행하지 않는다.
@@ -266,12 +266,12 @@ System.out.println("orders = n + orders.getClass().getName());
 - member.getOrders()를 호줄해도 컬렉션은 조기화되지 않는다.
 - 컬렉션은 member.getOrders().get(0) 처럼 컬렉션에서 실제 데이터를 조회할 때 데이터베이스를 조회해서 초기화한다.
 
-![image.jpg1](./images/8.1_14.PNG)
+![image.jpg1](./images/8.3_4.PNG)
 - 주문내역과 상품의 로딩 방법을 FetchType.EAGER로 설정했다.
 - 지연로딩 상태인 주문내역을 초기화할 때 연관된 상품도 함께 로딩된다.
 
 ### 8.3.2 JPA 기본 페치 전략
-![image.jpg1](./images/8.1_15.PNG)
+![image.jpg1](./images/8.3_5.PNG)
 - JPA 기본 패치 전략은 연관된 엔티티가 하나면 즉시로딩을 하고 컬렉션이면 지연로딩을 하는거다.
 - 컬렉션을 로딩하는 것은 비용이 많이 들고 잘못하면 너무 많은 데이터를 로딩할 수 있기 때문이다.
 - 추천하는 방법은 모든 연관관계에 지연로딩을 사용하는거다.
