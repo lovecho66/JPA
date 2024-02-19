@@ -238,6 +238,7 @@ WHERE TEAM ID = 'team1'
 - Order와 연관된 Product는 자주 함께 사용되서 [즉시로딩]으로 설정했다.
   
 ![image.jpg1](./images/8.3_2.PNG) |![image.jpg2](./images/8.3_3.PNG)
+|----|----|
 - Member과 Team의 연관관계를 FetchType.EAGER로 설정했다.
 - 따라서 회원 엔티티를 조회 하면 연관된 팀 엔티티도 즉시 조회한다.
 - 회원 엔티티와 팀 엔티티를 JOI해서 한번에 조회한다. (SQL실행)
@@ -283,19 +284,83 @@ System.out.println("orders = n + orders.getClass().getName());
   - JPA는 이렇게 조회된 결과를 메모리에서 필터링해서 반환한다.
   - 따라서 2개 이상의 컬렉션을 즉시 로딩으로 설정하는 것은 권장하지 않는다.
 - 컬렉션 즉시로딩은 항상 외부조인을 사용한다.
-  +++++
+  - 일대다 관계에서 외래키가 NOT NULL인 다(N) 테이블에 일(1)에 해당하는 데이터가 없으면 외부조인은 일(1)을 기준을 나오지만 내부조인을 걸면 안오는 경우가 생길 수 있다. 
+  - 그래서 일대다 관계를 즉시로딩할 때 항상 외부 조인을 사용한다.
+
+### FetchType.EAGER 설정과 조인 전략
+- @ManyToOne , @OneToOne
+  - optional = false : 내부조인
+  - optional = true : 외부조인
+- @OneToMany , @ManyToMany
+  - optional = false : 외부조인
+  - optional = true : 외부조인
+  
 ## 8.4 영속성 전이 : CASCADE
+- 특정 엔티티를 영속상태로 만들 때 연관된 엔티티도 함께 영속 상태로 만들고 싶으면 영속성 정이 기능을 사용하면된다.
+- JPA는 CASCADE 옵션으로 영속성 전이를 제공한다.
+- 연속성 전이를 사용하면 부보엔티티를 저장할 때 자식도 함께 저장된다.
+  
+![image.jpg1](./images/8.4_2.PNG)
+- JPA에서 엔티티를 저장할 때 연관된 모든 엔티티는 영속상태여야 한다.
+- 영속성 전이를 사용하면 부모만 영속 상태로 만들면 연관된 자식까지 한번에 영속상태로 만들 수 있다. 
+  
+### 8.4.1 영속성 전이 : 저장
+![image.jpg1](./images/8.4_3.PNG)
+- CASCADE = CascadeType.PERSIST옵션을 설정하면부모를 영속화 할 때 연관된 자식들도 함께 영속화된다.
+  
+![image.jpg1](./images/8.4_4.PNG) |![image.jpg2](./images/8.4_5.PNG)
+|----|----|
+- 부모만 저장해서 영속화하면 자신들도 같이 영속화되서 저장된다.
+- 조회 SQL로 확인해보면 실제 자식 데이터들 DB에 저장되어있다.
+- 영속성 전이는 연관관계를 매핑하는 것과 아무관련이 없고 단지 엔티티를 영속화할 때 연관된 엔티티도 같이 영속화하는 편리함을 제공할 뿐이다. 
+
+### 8.4.2 영속성 전이 : 삭제
+![image.jpg1](./images/8.4_6.PNG) |![image.jpg2](./images/8.4_7.PNG)
+|----|----|
+- 각각의 엔티티를 하나씩 제거해야하는 것을 CascadeType.REMOVE로 설정하고 부모엔티티만 삭제하면 자식 엔티티도 함께 삭제된다.
+- 자식 2개에 대해 DELETE 쿼리를 실행하고 다음 부모 1개에 대해 DELETE 쿼리를 실행해 총 3번 DELETE 문이 나간다.
+- CascadeType.REMOVE를 설정하지 않고 부모 엔티티만 삭제하면 영속성 전이가 일어나지 않아 부모 데이터만 삭제된다. 그러나 외래키 무결성으로 예외가 발생되 실제 삭제되진 않는다.
+
+### 8.4.3 CASCADE의 종류
+![image.jpg1](./images/8.4_8.PNG)
+- CascadeType 코드에는 다양한 옵션이 있다. 
+- CascadeType.PERSIST, CascadeType.REMOVE는 em.persist(), em.remove()를 실행할 때 바로 전이가 발생하지 않고 플러시를 호출할 때 전이가 발생한다
+  
 ## 8.5 고아 객체
+![image.jpg1](./images/8.5_1.PNG)
+- JPA는 부모 엔티티와 연관관계가 끊어진 자식 엔티티를 자동으로 삭제하는 [고아 객체(ORPHAN) 제거] 기능을 제공한다. 
+- 고아 객체 제거 기능을 사용해서 부모 엔티티의 컬렉션에서 자식 엔티티의 참조만 제거하면 자식 엔티티가 자동으로 삭제할 수 있게 할 수 있다.
+- 고아 객체 제거 기능을 활성화하기 위해 컬렉션에 orphanRemoval =true를 설정한다.
+- 이렇게 설정하면 컬렉션에서 제거한 엔티티는 자동으로 삭제된다.
+
+![image.jpg1](./images/8.5_2.PNG)
+- 컬렉션에서 첫번째 자식을 제거했다.
+- orphanRemoval = true 옵션으로 인해 컬렉션에서 엔티티를 제거하면 데이터베이스의 데이터도 삭제된다.
+- 고아 객체 제거 기능은 영속성 컨텍스트를 플러시할 때 적용되므로 플러시 시점에 DELETE SQL이 실행된다.
+  
+```java
+parentl.getChildren().clear();
+```
+- 모든 자식 엔티티를 제거하려면 다음 코드처럼 컬렉션을 비우면 된다.
+
+#### 고아 객체 정리!
+- 고아 객체 제거는 참조가 제거된 엔티티는 다른 곳에서 참조하지 않는 고아 객체로 보고 삭제하는 기능이다.
+- 따라서 이 기능은 참조하는 곳이 하나일 때만 사용해야한다.
+- 만약 삭제한 엔티티를 다른 곳에서도 참조한다면 문제가 발생할 수 있다.
+- 그래서 orphanRemoval은 @OneToOne,@OneToMany에만 사용할 수 있다. 
+- 또 다른 기능 중 하나는 부모를 제거하면 자식은 고아가 된다. 따라서 부모를 제거하면 자식도 같이 제거된다. 이것은 CascadeType.REMOVE를 설정한 것과 같다.
+  
 ## 8.6 영속성 전이 + 고아 객체, 생명주기
 
------------------------------------------
-
-![image.jpg1](./images/6.1_1.PNG)
-
-- Team 하나에 Member 여러명이 포함되는 관계다.
-
-![image.jpg1](./images/6.1_2.PNG) |![image.jpg2](./images/6.1_3.PNG)
+```java
+Parent parent = em.find(Parent.class, parentld) ;
+parent.addChild(childl);
+```
 
 ```java
-
-``` 
+Parent parent = em.find(Parent.class, parentld);
+parent.getChildren().remove(removeObject);
+```
+- 일반적으로 엔티티는 em.persist()를 통해서 영속화되고 em.remove()를 통해서 제거된다. 엔티티가 스스로 생명주기를 관리하게된다. 
+- CascadeType. ALL + orphanRemoval = true를 동시에 사용하면 부모 엔티티를 통해서 자식의 생명주기를 관리할 수 있게 된다.
+- 부모객체에 자식을 등록만 시켰는데 저장이되고 부모객체의 자식을 제거했는데 삭제가되는거다.
