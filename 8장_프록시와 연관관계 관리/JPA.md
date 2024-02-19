@@ -1,4 +1,4 @@
-![image](https://github.com/lovecho66/JPA/assets/70501822/e0b9b66a-c807-4130-9d80-5302f5146644)# 8장_프록시와 연관관계 관리
+# 8장_프록시와 연관관계 관리
 
 <b>✨설명 전 Point 잡고 가기✨</b> 
 
