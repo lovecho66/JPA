@@ -1,4 +1,4 @@
-# 8장_프록시와 연관관계 관리
+![image](https://github.com/lovecho66/JPA/assets/70501822/e0b9b66a-c807-4130-9d80-5302f5146644)# 8장_프록시와 연관관계 관리
 
 <b>✨설명 전 Point 잡고 가기✨</b> 
 
@@ -217,12 +217,12 @@ team.getName(); //팀 객체 실제 사용
 - 실제 데이터가 필요한 순간이 되어서야 데이터베이스를 조회해서 프록시 객체를 초기화한다.
 ```sql
 SELECT * FROM MEMBER
-WHERE MEMBER_ID = 'memberl'
+WHERE MEMBER_ID = 'member1'
 ```
-- em.find (Member. class, "memberl") 호줄 시 실행되는 SQL이다.
+- em.find (Member.class, "memberl") 호줄 시 실행되는 SQL이다.
 ```sql
 SELECT * FROM TEAM
-WHERE TEAM ID = 'teaml'
+WHERE TEAM ID = 'team1'
 ```
 - team.getName () 호출로 프록시 객체가 초기화되면서 실행되는 SQL이다.
 > 조회 대상이 영속서 컨텍스트에 있으면 프록시 객체를 사용할 이유가 없다. 따라서 프록시가 아닌 실제 객체를 사용한다.
@@ -232,6 +232,47 @@ WHERE TEAM ID = 'teaml'
 - 즉시로딩은 연관된 엔티티를 즉시 조회하고 하이버네이트는 가능하면 sql 조인을 사용해서 한번에 조회한다.
 
 ## 8.3 지연로딩 활용
+![image.jpg1](./images/8.1_11.PNG)
+- Member와 연관된 Team은 자주 함께 사용되서 [즉시로딩]으로 설정했다.
+- Member와 연관된 Order은 가끔 사용되서 [지연로딩]으로 설정했다.
+- Order와 연관된 Product는 자주 함께 사용되서 [즉시로딩]으로 설정했다.
+  
+![image.jpg1](./images/8.1_12.PNG) |![image.jpg2](./images/8.1_13.PNG)
+- Member과 Team의 연관관계를 FetchType.EAGER로 설정했다.
+- 따라서 회원 엔티티를 조회 하면 연관된 팀 엔티티도 즉시 조회한다.
+- 회원 엔티티와 팀 엔티티를 JOI해서 한번에 조회한다. (SQL실행)
+  
+- Member과 Order의 연관관계를 FetchType.LAZY로 설정했다.
+- 회원 엔티티를 조회할 때 연관된 주문내역 엔티티는 프록시로 조회되서 실제 실행될 때까지 로딩을 지연한다.
+- 회원 엔티티를 조회할 때는 회원만 조회한다.(회원 SQL)
+- member.getTeam()로 실제 주문내역을 사용할때 주문내역 조회하고 엔티티를 생성해서 반환받는다. (주문내역 SQL)
+
+### 8.3.1 프록시와 컬렉션 래퍼
+![image.jpg1](./images/8.1_13.PNG)
+- 즉시로딩한 객체는 실선으로 표현했고 지연로딩한 객체는 점선으로 표현했다.
+- 지연로딩을 사용하면 실제 엔티티가 아닌 프록시 객체를 사용한다.
+- 프록시 객체는 실제로 자신이 사용되기전까지는 데이터베이스 실행하지 않는다.
+```java
+Member member = em.find(Member.class, "member1") ;
+List<Order> orders = member.getOrders();
+System.out.println("orders = n + orders.getClass().getName());
+" 결과: orders = rg.hibernate.collection.internal,PersistentBag
+```
+- 하이버네이트는 엔티티를 영속상태로 만들때 엔티티에 컬렉션이 있으면 엔티티를 추적하고 관리할 목적으로 원본 컬렉션을 하이버네이트가 제공하는 내장 컬렉션으로 변경한다. 이것을 컬렉션 래퍼라고 한다.
+- 출력 결과를 보면 컬렉션 래퍼인 org.hibernate.collection.internal.PersistentBag이 반환된다.
+- 엔티티를 지연하면 프록시 객체를 사용해서 지연로딩을 해준다.
+- 컬렉션은 컬렉션 래퍼가 지연로딩을 처리해준다.
+- 컬렉션 래퍼도 컬렉션에 대한 프록시 역할을 하므로 따로 구분하지 않고 프록시로 부른다.
+- member.getOrders()를 호줄해도 컬렉션은 조기화되지 않는다.
+- 컬렉션은 member.getOrders().get(0) 처럼 컬렉션에서 실제 데이터를 조회할 때 데이터베이스를 조회해서 초기화한다.
+
+![image.jpg1](./images/8.1_14.PNG)
+- 주문내역과 상품의 로딩 방법을 FetchType.EAGER로 설정했다.
+- 지연로딩 상태인 주문내역을 초기화할 때 연관된 상품도 함께 로딩된다.
+
+### 8.3.2 JPA 기본 페치 전략
+![image.jpg1](./images/8.1_15.PNG)
+
 ## 8.4 영속성 전이 : CASCADE
 ## 8.5 고아 객체
 ## 8.6 영속성 전이 + 고아 객체, 생명주기
