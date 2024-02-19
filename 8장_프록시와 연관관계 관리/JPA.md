@@ -175,10 +175,9 @@ public class Member {
     ...
   }
 ```
-  > nullable 설정에 따른 조인 전략
-    ■ @JoinColumn(nullable - true)： NULL 허용(기본값), 외부 조인 사용 
-    ■ @JoinColumn(nullable - false)： NULL 허용하지 않음, 내부 조인 사용
-      또는 다음처럼 @ManyToOne.optional = false로 설정해도 내부 조인을 사용한다.
+  > nullable 설정에 따른 조인 전략<br>
+    ■ @JoinColumn(nullable - true)： NULL 허용(기본값), 외부 조인 사용 <br>
+    ■ @JoinColumn(nullable - false)： NULL 허용하지 않음, 내부 조인 사용 또는 다음처럼 @ManyToOne.optional = false로 설정해도 내부 조인을 사용한다.
   ```java
   @Entity
   public class Member {
@@ -241,7 +240,7 @@ WHERE TEAM ID = 'team1'
 |----|----|
 - Member과 Team의 연관관계를 FetchType.EAGER로 설정했다.
 - 따라서 회원 엔티티를 조회 하면 연관된 팀 엔티티도 즉시 조회한다.
-- 회원 엔티티와 팀 엔티티를 JOI해서 한번에 조회한다. (SQL실행)
+- 회원 엔티티와 팀 엔티티를 JOIN해서 한번에 조회한다. (SQL실행)
   
 - Member과 Order의 연관관계를 FetchType.LAZY로 설정했다.
 - 회원 엔티티를 조회할 때 연관된 주문내역 엔티티는 프록시로 조회되서 실제 실행될 때까지 로딩을 지연한다.
