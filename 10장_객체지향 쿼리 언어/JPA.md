@@ -70,7 +70,48 @@ em.CreateQuery(jpql,Member.class).getResultList()
   - JPA는 2.0부터 Criteria를 지원한다.  
 ![image.jpg1](./images/10.1_5.PNG)
 - 쿼리가 아닌 코드로 작성한 것을 볼 수 있다. (.where(~))
+- Criteria가 가진 장점이 많지만 모든 장점을 상쇄할 정도로 복잡하고 장황하다.
+- Criteria로 작성한 코드도 한눈에 들어오지 않는다는 단점이 있다.
+
+## 10.1.3 QueryDSL 소개
+- QueryDSL JPQL 빌더 역할을 한다.
+- QueryDSL의 장점은 코드 기반이면서 단순하고 사용하기 쉽다.
+> 참고로, QueryDSL은 JPA 표준은 아니고 오픈소스 프로젝트다.<br>
+  JPA,JDO,몽고DB,Java Collection, Lucene, Hibernate Search도 거의 같은 문법으로 지원한다. 
+  Criteria보다 QueryDSL을 선호한다.
+
+![image.jpg1](./images/10.1_6.PNG)
+
+- QueryDSL도 어노테이션 프로세서를 사용해서 쿼리 전용 클래스를 만들어야한다.
+- 이 소스에서 QueryDSL 쿼리 전용 클래스는 QMember다.
+- QMember는 Member 엔티티 클래스를 기반으로 생성했다.
+
+## 10.1.4 네이티브 SQL 소개
+- JPA는 SQL을 직접 사용할 수 있는 기능을 지원하는데 이를 네이티브 SQL라 한다. 
+- 특정 데이터베이스에 의존하는 기능을 사용해야할 때 네이티브 SQL을 사용한다. 
+  - 오라클 데이터베이스만 사용하는 CONNECT BY 기능
+  - 특정 데이터베이스에서만 동작하는 SQL 힌트
+  - 위 기능들은 전혀 표준화되어 있지 않으므로 JPQL에서 사용할 수 없다.
+- SQL은 지원하지만 JPQL이 지원하지 않는 기능도 있는데 이때도 네이티브 SQL을 사용한다.
+- 네이티브 SQL의 단점은 특정 데이터베이스에 의존하는 SQL을 작성해야 한다는 점이다. 
+
+![image.jpg1](./images/10.1_7.PNG)
+
+- 네이티브 SQL은 em.createNativeQuery()를 사용해서 직접 작성한 sql을 데이터베이스에 전달한다.
+
+## 10.1.5 JDBC 직접 사용, 마이바티스 같은 SQL 매퍼 프레임워크 사용
+- JPA는 JDBC 커넥션을 획득하는 API를 제공하지 않는다.
+- JDBC 커넥션에 직접 접근하고 싶으면 JPA 구현체가 제공하는 방법을 사용해야 한다.
+![image.jpg1](./images/10.1_8.PNG)
+
+- JDBC Connection을 획득하는 방법
+  - JPA EntityManager에서 하이버네이트 Session을 구하고 Session의 doWork() 메소드를 호출한다.
+- JDBC나 마이바티스를 JPA와 함께 사용하면 영속성 컨텍스트를 적절한 시점에 강제로 프러시해야 한다.
+  - JDBC를 직접 사용하거나 마이바티스 같은 SQL 매퍼와 사용하면 모두 JPA를 우회해서 데이터베이스에 접근한다. 이렇게 우회하는 SQL에 대해서는 JPA가 전혀 인식을 하지 못해서 문제가 된다. (무결성 훼손)
+- 다시 강조하면, JPA를 우회해서 SQL을 실행하기 직전에 영속성 컨텍스트를 수동으로 플러시해서 데이터베이스와 영속성 컨텍스트를 동기화하면 된다.
+- 참고로,스프링 프레임워크를 사용하면 JPA와 마이바티스를 손쉽게 통합할 수 있다.
 - 
+  
 # 10.2 JPQL
 # 10.3 Criteria
 
