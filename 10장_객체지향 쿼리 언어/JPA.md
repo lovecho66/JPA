@@ -110,9 +110,91 @@ em.CreateQuery(jpql,Member.class).getResultList()
   - JDBC를 직접 사용하거나 마이바티스 같은 SQL 매퍼와 사용하면 모두 JPA를 우회해서 데이터베이스에 접근한다. 이렇게 우회하는 SQL에 대해서는 JPA가 전혀 인식을 하지 못해서 문제가 된다. (무결성 훼손)
 - 다시 강조하면, JPA를 우회해서 SQL을 실행하기 직전에 영속성 컨텍스트를 수동으로 플러시해서 데이터베이스와 영속성 컨텍스트를 동기화하면 된다.
 - 참고로,스프링 프레임워크를 사용하면 JPA와 마이바티스를 손쉽게 통합할 수 있다.
-- 
+- 스프링 프레임워크의 AOP를 적절히 활용해서 JPA를 우회하여 데이터베이스에 접근하는 메소드를 호출할 때마다 영속성 컨텍스트를 플러시하면 된다.
+  <details>
+
+    <summary>스프링 프레임워크 AOP 사용해서 플러시</summary>
+    
+    <!-- summary 아래 한칸 공백 두어야함 -->
+
+    ```java 
+    @Aspect
+    @Component
+    public class FlushPersistenceContextAspect {
+    
+        @PersistenceContext
+        private EntityManager entityManager;
+    
+        @Before("execution(* com.example.service.*.*(..)) && !@annotation(Transactional)")
+        public void beforeNonTransactionalServiceMethods() {
+            // 트랜잭션 어노테이션이 없는 서비스 메소드가 호출될 때마다 영속성 컨텍스트를 플러시
+            entityManager.flush();
+        }
+    }
+
+    ```
+    - AOP는 스프링 프레임워크에서 제공하는 기능 중 하나다.
+    - AOP의 핵심 개념은 Advice(조언),Join Point(결합 지점), Pointcut(결합 지점 선정) , Aspect(관점)등이 있다.
+    - AOP를 활용해서 영속성 컨텍스트를 플러시 하기위해 Aspect를 사용한다.
+    - Aspect(관점)은 여러 결합 지점과 Advice의 조합을 의미한다. 예를 들어, 로깅과 트랜잭션 관리를 위한 Aspect를 정의할 수 있다.
+    - FlushPersistenceContextAspect 클래스는 @Aspect 어노테이션을 사용하여 Aspect로 정의한다.
+    - @Before 어노테이션을 사용하여 Advice를 정의한다.
+    - Aspect는 execution(* com.example.service.*.*(..)) && !@annotation(Transactional) 포인트컷 표현식을 사용하여 com.example.service 패키지에 속한 모든 메소드 중 @Transactional 어노테이션이 없는 메소드를 대상으로 한다.
+    - Advice 내에서 entityManager.flush()를 호출하여 영속성 컨텍스트를 플러시한다.
+    - 이렇게 하면 JPA가 관리하는 엔티티의 상태가 데이터베이스와 동기화된다.
+  </details>
   
 # 10.2 JPQL
+
+![image.jpg1](./images/10.2_1.PNG) |![image.jpg2](./images/10.2_2.PNG)
+|----|----|
+
+- 예제 사용할 도메인 모델은 위와 같다.
+- 왼쪽이 샘플 모델 UML이고 오른쪽이 샘플 모델 ERD다.
+- 회원이 상품을 주문하는 다대다 관계라는 것을 특히 주의해서 보자.
+- Address는 임베디드 타입인데 이것은 값 타입으로 uml에서 스테레오 타입을 사용해서 <<value>>로 정의했다. 
+
+## 10.2.1 기본 문법과 쿼리 API
+- JPQL도 SQL과 비슷하게 SELECT,UPDATE,DELETE문을 사용할 수 있다. (em.persist()메소드 사용하면 되므로 INSERT는 따로 없다.)
+  ### SELECT
+  ```java
+  SELECT m FROM Member AS m where m.username = 'Hello'
+  ```
+  - 대소문자 구분
+    - 엔티티와 속성은 대소문자를 구분한다. (Member 엔티티, username 속성)
+    - SELECT,FROM,AS 같은 JPQL 키워드는 대소문자를 구분하지 않는다. 
+  - 엔티티 이름
+    - JPQL에서 사용한 Member는 클래스 명이 아니라 엔티티명이다.
+    - 엔티티 명은 @Entity(name="xxx")로 지정할 수 있다.
+    - 기본값인 클래스 명을 엔티티명으로 사용하는 것을 추천한다.
+  - 별칭은 필수
+    ![image.jpg1](./images/10.2_3.PNG)
+    - Member AS m 처럼 Member 에 m이라는 별칭을 줬다.
+    - JPQL은 별칭을 필수로 사용해야 한다. (오류발생)
+    - AS는 생략 가능하다.
+  > 하이버네이트는 JPQL 표준도 지원하지만 더 많은 기능을 가진 HQL(Hibernate Query Language)를 제공한다.
+    JPA 구현체로 하이버네이트를 사용하면 HQL도 사용할 수 있다.
+    HQL 사용 : SELECT username FROM Member (username 처럼 별칭 없이 사용가능)
+  
+  > JPA 표준 명세는 별칭을 식별 변수라는 용어로 정의함
+
+  ### TypeQuery,Query
+  - 작성한 JPQL을 실행하려면 쿼리 객체를 만들어야 한다.
+  - 쿼리 객체는 TypeQuery와 Query가 있다.
+    - TypeQuery 선택 : 반환할 타입을 명확하게 지정
+    - Query 선택 : 반환 타입을 명확하게 지정할 수 없음
+
+  ![image.jpg1](./images/10.2_4.PNG)
+
+  - em.createQuery()에 반환타입 Member.class 지정한다.
+  - TypeQuery를 반환한다.
+
+  ![image.jpg1](./images/10.2_5.PNG)
+
+  - SELECT절에 여러 엔티티나 컬럼을 선택할 때는 반환할 타입이 명확하지 않으므로 Query객체를 사용해야한다.
+  - Query객체는 SELECT 절의 조회 대상이 하나면 Object 반환하고 둘 이상이면 Object[]를 반환한다.
+## 10.2.15 Named 쿼리 : 정적 쿼리
+
 # 10.3 Criteria
 
 ```java
