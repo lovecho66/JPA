@@ -190,9 +190,33 @@ em.CreateQuery(jpql,Member.class).getResultList()
   - TypeQuery를 반환한다.
 
   ![image.jpg1](./images/10.2_5.PNG)
-
+  ```java
+  SELECT m.username from Member m;  
+  ```
   - SELECT절에 여러 엔티티나 컬럼을 선택할 때는 반환할 타입이 명확하지 않으므로 Query객체를 사용해야한다.
+  ```java
+  SELECT m.username,m.age from Member m;
+  ```
   - Query객체는 SELECT 절의 조회 대상이 하나면 Object 반환하고 둘 이상이면 Object[]를 반환한다.
+  ### 결과 조회
+  - 다음 메소드들을 호출하면 실제 쿼리를 실행해서 데이터베이스를 조회한다.
+    - query.getResultList() : 결과를 예제로 반환한다. 만약 결과과 없으면 빈 컬렉션을 반환한다.
+    - query.getSingleResult() : 결과가 정확히 하나일 때 사용한다. (정확히 1개가 아니면 예외발생)
+      - 결과가 없으면 javax.persistence.NoResultException예외가 발생한다.
+      - 결과가 1개보다 많으면 javax.persistence.NonUniqueResultException 예외가 발생한다.
+
+## 10.2.2 파라미터 바인딩
+  - JDBC는 위치 기준 파라미터 바인딩만 지원하지만 JPQL은 이름 기준 파라미터 바인딩도 지원한다.
+
+    - 이름 기준 파라미터
+    ![image.jpg1](./images/10.2_6.PNG)
+
+      - 이름 기준 파라미터는 파라미터 이름으로 구분하는 방법으로 앞에 : 를 사용한다.
+      - JPQL을 보면 :username이라는 이름 기준 파라미터를 정의하고 query.setParameter()에서 username이라는 이름으로 파라미터를 바인딩한다.
+      ```java
+
+      ```
+      - JPQL API는 대부분 메소드 체인 방식으로 설계되어 있어서 연속해서 작성할 수 있다. 
 ## 10.2.15 Named 쿼리 : 정적 쿼리
 
 # 10.3 Criteria
