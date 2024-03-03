@@ -320,12 +320,110 @@ em.createQuery("SELECT username FROM Member m", String.class).getResultList();
   - 순서와 타입이 일치하는 생서자가 필요하다. 
   
 ## 10.2.4 페이징 API 
+![image.jpg1](./images/10.2_15.PNG)
 - 데이터베이스마다 페이징을 처리하는 SQL 문법이 다르다.
 - JPA는 페이징을 두 API로 추상화했다.
   - setFirstResult(int startPosition) : 조회 시작 위치(0부터 시작한다.)
   - setMaxResult(int maxResult) : 조회할 데이터 수
-## 10.2.5 
-## 10.2.6
+- FirstResult 시작은 10이므로 11번째부터 시작해서 20건의 데이터를 조회한다. (11~30번)
+![image.jpg1](./images/10.2_16.PNG) |![image.jpg2](./images/10.2_17.PNG)
+|----|----|
+
+```XML
+//제 10,22 오라클(org.hit>ernate.dialect.Oracte10gDiatect)
+SELECT *
+FROM
+( SELECT ROW_.*, ROWNUM ROWNUM_
+FROM ( SELECT M.ID AS ID,
+              M.AGE AS AGE,
+              M.TEAM_ID AS TEAM_ID,
+              M.NAME AS NAME
+              FROM MEMBER M
+              ORDER BY M.NAME
+      ) ROW_
+WHERE ROWNUM <= ?
+)
+WHERE ROWNUM > ?
+```
+```XML
+//SQLServer(org.hibernate.dialect.SQLServer2008Dialect)
+WITH query AS (
+  SELECT
+  inner_query.
+  ROW_NUMBER() OVER (ORDER BY CURRENT_TIMESTAMP) as
+  _ hibernate_row_nr_
+FROM
+    ( select
+          TOP (?) m.id as id,
+          m.age as age,
+          m.team_id as team_id,
+          m.name as name
+    from Member m
+    order by m.name DESC
+    ) inner_query
+)
+SELECT id, age, team_id, name
+FROM query
+WHERE hibernate row nr >= ? AND hibernate row nr < ?
+```
+- 데이터베이스마다 다른 페이징 처리를 같은 API로 처리할 수 있는 것은 데이터베이스 방언덕분이다. (JPA가 제공)
+- 페이징 SQL을 더 최적화하고 싶다면 JPA가 제공하는 페이징 API가 아닌 네이티브 SQL을 직접 사용해야한다.
+  
+## 10.2.5 집합과 정렬
+```XML
+select  COUNT (m),    //회원수 
+        SUM(m.age) ， // 나이합 
+        AVG(m.age),   //평균나이 
+        MAX (m.age),  //최대나이 
+        MIN (m.age)   //최소나이 
+from Member m
+```
+- 집합은 집합함수와 함께 통계 정보를 구할 때 사용한다.
+
+### 집합 함수
+![image.jpg1](./images/10.2_18.PNG)
+
+- 집합 함수 사용시 참고사항
+  - NULL값은 무시하므로 통계에 잡히지 않는다.(DISTINCT가 정의되어 있어도 무시)
+  - 만약 값이 없는데 SUM,AVG,MAX,MIN 함수를 사용하면 NULL값이 된다.
+  - 단,COUNT는 값이 없으면 0이 된다.
+  ```XML
+  SELECT COUNT(DISTINCT m.age) FROM Member m
+  ```
+  - DISTINCT를 집합 함수 안에 사용해서 중복된 값을 제거하고 나서 집합을 구할 수 있다. 
+  - DISTINCT를 COUNT에서 사용할 때 임베디드 타입은 지원하지 않는다.
+
+### GROUP BY, HAVING
+![image.jpg1](./images/10.2_19.PNG) |![image.jpg2](./images/10.2_20.PNG)
+|----|----|
+
+- GROUP BY 와 HAVING등 이런 쿼리들을 보통 리포팅 쿼리나 통계쿼리라 한다. 
+- 통계 쿼리를 잘 활용하면 애플리케이션으로 수십 라인을 작성할 코드도 단 몇 줄이면 처리할 수 있지만
+  통계 쿼리는 보통 전체 데이터를 기준으로 처리하므로 실시간으로 사용하기엔 부담이 많다.
+- 결과가 아주 많다면 통계 결과만 저장하는 테이블을 별도로 만들어 두고 사용자가 적은 새벽에 통계 쿼리를 실행해서 그 결과를 보관하는 것이 좋다. 
+
+### 정렬 ORDER BY
+
+## 10.2.6 JPQL 조인
+### 내부 조인
+![image.jpg1](./images/10.2_21.PNG)
+- 내부조인은 INNER JOIN을 사용한다.
+![image.jpg1](./images/10.2_22.PNG) |![image.jpg2](./images/10.2_23.PNG)
+|----|----|
+
+- JPQL 내부 조인 구문과 SQL의 조인은 약간 차이가 있다. (SQL과 똑같이 쓰면 문법 오류 발생)
+- JPQL 조인의 특징은 연관 필드를 사용하는건데 여기서 m.team이 연관필드로 다른 엔티티와 연관관계를 가질 수 있게 해준다.
+- 연관 필드는 다른 엔티티와 연관관계를 가지기 위해 사용하는 필드다.
+
+```java
+SELECT m.username, t.name
+FROM Member m JOIN m.team t
+WHERE t.name = '팀A'
+ORDER BY m.age DESC
+```
+- 위 쿼리는 팀A 소속인 회원을 나이 내림차순으로 정렬하고 회원명과 팀명을 조회한다.
+
+
 ## 10.2.7
 ## 10.2.8
 ## 10.2.9
