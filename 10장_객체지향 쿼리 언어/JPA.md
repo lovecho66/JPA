@@ -326,7 +326,8 @@ em.createQuery("SELECT username FROM Member m", String.class).getResultList();
   - setFirstResult(int startPosition) : 조회 시작 위치(0부터 시작한다.)
   - setMaxResult(int maxResult) : 조회할 데이터 수
 - FirstResult 시작은 10이므로 11번째부터 시작해서 20건의 데이터를 조회한다. (11~30번)
-![image.jpg1](./images/10.2_16.PNG) |![image.jpg2](./images/10.2_17.PNG)
+  
+![image.jpg1](./images/10.2_16.PNG) | ![image.jpg2](./images/10.2_17.PNG)
 |----|----|
 
 ```XML
@@ -408,6 +409,7 @@ from Member m
 ### 내부 조인
 ![image.jpg1](./images/10.2_21.PNG)
 - 내부조인은 INNER JOIN을 사용한다.
+  
 ![image.jpg1](./images/10.2_22.PNG) |![image.jpg2](./images/10.2_23.PNG)
 |----|----|
 
@@ -427,7 +429,9 @@ ORDER BY m.age DESC
 
 - 서로 다른 타입의 두 엔티티를 조회했으므로 TypeQuery를 사용할 수 없다.
 - 그래서 Object[]사용해서 조회한다.
+
 ### 외부 조인
+
 ![image.jpg1](./images/10.2_26.PNG) |![image.jpg2](./images/10.2_27.PNG)
 |----|----|
 - 외부조인은 기능상 SQL 외부 조인과 같다.
@@ -465,8 +469,10 @@ SELECT m FROM Member m join fetch m.team;
 - 연관된 엔티티나 컬렉션을 함께 조회하는데 여기서 회원(m)과 팀(m.team)을 함께 조회한다. 
 - 일반적인 JPQL 조인과는 m.team 다음에 별칭이 없는데 페치 조인은 별칭을 사용할 수 없다.
   (하이버네이트는 페치 조인에도 별칭을 허용한다.)
+  
 ![image.jpg1](./images/10.2_30.PNG) |![image.jpg2](./images/10.2_31.PNG)
 |----|----|  
+
 - 엔티티 페치 조인 JPQL에서 SELECT m으로 회원 엔티티만 선택했는데 실행된 SQL을 보면 SELECT M.*,T.*로 회원과 연관된 팀도 함께 조회된 것을 확인할 수 있다.
 
 ![image.jpg1](./images/10.2_32.PNG)
@@ -475,6 +481,7 @@ SELECT m FROM Member m join fetch m.team;
 - 프록시가 아닌 실제 엔티티이므로 회원 엔티티가 영속성 컨텍스트에서 분리되어 준영속 상태가 되어도 연관된 팀을 조회할 수 있다. 
 
 ### 컬렉션 페치 조인 
+
 ![image.jpg1](./images/10.2_33.PNG) |![image.jpg2](./images/10.2_34.PNG)
 |----|----|  
 - 팀(t)을 조회하면서 페치 조인을 사용해서 연관된 회원 컬렉션도 함께 조회한다.
@@ -507,15 +514,18 @@ SELECT m FROM Member m join fetch m.team;
 - JPQL의 DISTINCT 명령어는 아래 2가지 작업을 해준다. 
   - SQL에서의 DISTINCT를 추가하는 것
   - 애플리케이션에서 한번 더 중복을 제거하는 것
+  - 
 ![image.jpg1](./images/10.2_38.PNG) |![image.jpg2](./images/10.2_39.PNG)
 |----|----|    
 - 데이터가 달라서 중복제거해도 달라지는게 없다.
 - 애플리케이션에서 엔티티의 중복을 제거한다. 그러면 팀A의 객체는 하나만 남는다. 
 
 ### 페치조인과 일반 조인의 차이
+
 ![image.jpg1](./images/10.2_40.PNG)
 - JPQL은 결과를 반환할 때 연관관계까지 고려하지 않는다. 단지 SELECT 절에 지정한 엔티티만 조회할 뿐이다.
 - 그래서 조인만한 회원도 무조건 함께 조회될거라고 기대해서는 안된다.
+  
 ![image.jpg1](./images/10.2_41.PNG)
 - 만약 회원 컬렉션을 지연 로딩을 설정하면 프록시나 아직 초기화하지 않은 컬렉션 래퍼를 반환한다.
 - 즉시 로딩으로 설정하면 회원 컬렉션을 즉시 로딩하기 위해 쿼리를 한번 더 실행한다.
@@ -524,7 +534,23 @@ SELECT m FROM Member m join fetch m.team;
 - 반면에 페치 조인을 사용하면 연관된 엔티티도 함께 조회한다.
 
 ### 페치조인 특징과 한계
+- 페치조인을 사용하면 SQL 한번으로 연관된엔티티들을 함께 조회할 수 있어서 SQL 호출 횟수를 줄여 성능을 최적화할 수 있다.
+- 엔티티에 직접 적용하는 로딩 전략은 애플리케이션 전체에 영향을 미치므로 글로벌 로딩 전략이라고 한다.
+<details>
 
+    <summary>글로벌 로딩 전략</summary>
+    
+    <!-- summary 아래 한칸 공백 두어야함 -->
+    글로벌 로딩 전략은 주로 persistence.xml 파일이나 JPA 속성 설정을 통해 설정된다.
+    예를 들어, persistence.xml 파일에서 default-lazy-loading 또는 default-fetch 속성을 사용하여 전체적인 로딩 전략을 설정할 수 있다.
+</details>
+- 페치 조인은 글로벌 로딩 전략보다 우선한다.
+  EX) 글로벌 로딩 전략을 지연 로딩으로 설정해도 JPQL에서 페치 조인을 사용하면 페치 조인을 적용해서 함께 조회한다. 
+- 최적화를 위해 글로벌 로딩 전략을 즉시 로딩으로 설정하면 애플리케이션 전체에서 항상 즉시 로딩이 일어난다. <br>
+  일부는 빠를 수 있지만 전체로 보면 사용하지 않는 엔티티를 자주 로딩하므로 오히려 성능에 악영향을 미칠 수 있다. <br>
+  
+  __글로벌 로딩 전략은 될 수 있으면 지연 로딩을 사용하고 최적화가 필요하면 페치 조인을 적용하는 것이 효과적이다.__
+  
 ## 10.2.8
 ## 10.2.9
 ## 10.2.10
