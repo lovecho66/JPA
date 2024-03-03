@@ -320,6 +320,10 @@ em.createQuery("SELECT username FROM Member m", String.class).getResultList();
   - 순서와 타입이 일치하는 생서자가 필요하다. 
   
 ## 10.2.4 페이징 API 
+- 데이터베이스마다 페이징을 처리하는 SQL 문법이 다르다.
+- JPA는 페이징을 두 API로 추상화했다.
+  - setFirstResult(int startPosition) : 조회 시작 위치(0부터 시작한다.)
+  - setMaxResult(int maxResult) : 조회할 데이터 수
 ## 10.2.5 
 ## 10.2.6
 ## 10.2.7
