@@ -247,7 +247,7 @@ em.CreateQuery(jpql,Member.class).getResultList()
 
 - 위 JPQL 둘 다 엔티티를 프로젝션 대상으로 사용했다.
 - 엔티티를 프로젝션은 객체를 바로 조회하는 것이다.
-- 조회한 엔티티는 영속성 컨텍스트에서 관리된다.
+- __조회한 엔티티는 영속성 컨텍스트에서 관리된다.__
 
 ### 임베디드 타입 프로젝션
 
@@ -282,14 +282,45 @@ em.CreateQuery(jpql,Member.class).getResultList()
     Orders order
   ```
   - 위와 같은 쿼리가 실행된다.
-  - 임베디드 타입은 엔티티 타입이 아닌 값 타입이다. 따라서 이렇게 직접 조회한 임베디드 타입은 영속성 컨텍스트에서 관리 되지 않는다. 
+  - 임베디드 타입은 엔티티 타입이 아닌 값 타입이다.
+  - 따라서 이렇게 __직접 조회한 임베디드 타입은 영속성 컨텍스트에서 관리 되지 않는다.__
+
+### 스칼라 타입 프로젝션
+```java
+List<String> usernames =
+em.createQuery("SELECT username FROM Member m", String.class).getResultList();
+```
+- 숫자,문자,날짜와 같은 기본 데이터 타입들을 스칼라 타입이라 한다. 
+
+### 여러 값 조회
+![image.jpg1](./images/10.2_9.PNG)
+- 엔티티를 대상으로 조회하면 편하겠지만 꼭 필요한 데이터들만 선택해서 조회해야 할 때도 있다.
+- 프로젝션에 여러 값을 선택하면 TypeQuery는 사용할 수 없고 대신에 Query를 사용해야한다.
+
+![image.jpg1](./images/10.2_10.PNG)
+- 제너릭에 Object[]를 사용하면 위 코드처럼 조금 더 간결하게 개발할 수 있다.
+
+![image.jpg1](./images/10.2_11.PNG)
+- 엔티티 타입도 여러 값을 함께 조회할 수 있다.
+
+### New 
+![image.jpg1](./images/10.2_12.PNG) |![image.jpg2](./images/10.2_13.PNG)
+|----|----|
+- username과 age 두 필드를 프로젝션해서 타입을 지정할 수 없어서 TypeQuery를 사용할 수 없다. 그래서 Object[]를 반환받받았다.
+- 개발시 Object[]를 직접 사용하지 않고 UserDTO처럼 의미 있는 객체로 변환해서 사용할거다.
+- 객체 변환 작업은 지루하다. NEW 명령어를 사용하자!
+
+  
+## 10.2.15 Named 쿼리 : 정적 쿼리
+## 10.2.15 Named 쿼리 : 정적 쿼리
+## 10.2.15 Named 쿼리 : 정적 쿼리
 ## 10.2.15 Named 쿼리 : 정적 쿼리
 
 
 # 10.3 Criteria
 
-```java
 
-  }
+```java
 ```
+
 ![ConnectionMaker](./images/5.3.PNG)   
