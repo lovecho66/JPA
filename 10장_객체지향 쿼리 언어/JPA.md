@@ -214,10 +214,47 @@ em.CreateQuery(jpql,Member.class).getResultList()
       - 이름 기준 파라미터는 파라미터 이름으로 구분하는 방법으로 앞에 : 를 사용한다.
       - JPQL을 보면 :username이라는 이름 기준 파라미터를 정의하고 query.setParameter()에서 username이라는 이름으로 파라미터를 바인딩한다.
       ```java
-
+      List<Member> members = em.createQuery("SELECT m FROM Member m where m.username = :username", Member.class)
+      .setParameter ("username", usernameParam).getResultList() ;
       ```
-      - JPQL API는 대부분 메소드 체인 방식으로 설계되어 있어서 연속해서 작성할 수 있다. 
+      - JPQL API는 대부분 메소드 체인 방식으로 설계되어 있어서 연속해서 작성할 수 있다.
+
+    - 위치 기준 파라미터
+    ![image.jpg1](./images/10.2_7.PNG)
+      - 위치 기준 파라미터를 사용하려면 ? 다음에 위치 값을 주면 된다.
+      - 위치 기준 파라미터 방식보다는 이름 기준 파라미터 바인딩 방식을 사용하는 것이 더 명확하다.
+  > 파라미터 바인딩 방식을 사용해야하는 이유 <br>
+    1) 보안<br>
+    JPQL을 수정해서 다음 코드처럼 파라미터 바인딩 방식을 사용하지 않고 직접 문자를 더해 만들어 넣으면 악의적인<br>
+    사용자에 의해 SQL 인젝션 공격을 당할 수 있다.<br>
+    (String username = "user123";<br>
+    String jpqlQuery = "SELECT u FROM User u WHERE u.username = '" + username + "'";)<br>
+    2) 성능<br>
+    파라미터의 값이 달라도 같은 쿼리로 인식해서 JPA는 JPQL을 SQL로 파싱한 결과를 재사용할 수 있다.<br>
+    데이터베이스도 내부에서 실행한 SQL을 파싱해서 사용하는데 같은 쿼리는 파싱한 결과를 재사용할 수 있다.<br>
+    (애플리케이션과 데이터베이스 모두 해당 쿼리의 파싱 결과를 재사용할 수 있어서 전체 성능이 향상된다.)<br>
+  파라미터 바인딩 방식은 선택이 아닌 필수다.
+
+## 10.2.3 프로젝션
+- SELECT 절에 조회할 대상을 지정하는 것을 프로젝션이라한다.
+- SELECT {프로젝션 대상} FROM으로 대상을 선택한다.
+- 프로젝션 대상은 아래 3가지가 있다. 
+  - 엔티티
+  - 임베디드 타입
+  - 스칼라 타 (숫자,문자등 기본 데이터 타입)
+### 엔티티 프로젝션
+![image.jpg1](./images/10.2_8.PNG)
+
+- 위 JPQL 둘 다 엔티티를 프로젝션 대상으로 사용했다.
+- 엔티티를 프로젝션은 객체를 바로 조회하는 것이다.
+- 조회한 엔티티는 영속성 컨텍스트에서 관리된다.
+
+### 임베디드 타입 프로젝션
+
+- 임베디드 타입은 조회의 시작점이 될 수 없다는 제약이 있다. 
+
 ## 10.2.15 Named 쿼리 : 정적 쿼리
+
 
 # 10.3 Criteria
 
