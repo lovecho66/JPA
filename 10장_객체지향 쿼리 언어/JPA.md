@@ -252,7 +252,37 @@ em.CreateQuery(jpql,Member.class).getResultList()
 ### 임베디드 타입 프로젝션
 
 - 임베디드 타입은 조회의 시작점이 될 수 없다는 제약이 있다. 
+- 샘플 모델 Address는 UML에서 스테레오 타입을 사용해서 <<Value>>로 정의했다.
+  ERD를 보면 ORDERS 테이블에 포함되어 있다.
+    <details>
 
+    <summary>스테레오 타입</summary>
+    
+    <!-- summary 아래 한칸 공백 두어야함 -->
+    UML에서 스테레오 타입(Stereotype)은 일반적인 모델 요소에 대한 새로운 의미나 속성을 추가하는 데 사용됩니다.        <<VALUE>>는 UML에서 정의된 스테레오 타입 중 하나다.
+    </details>
+  
+  ```java
+  String query = "SELECT a FROM Address a";
+  ```
+  - 임베디드 타입은 조회의 시작점이 될 수 없다는 제약이 있다.
+  - 위 쿼리처럼 임베디드 타입인 Address를 조회의 시작점으로 사용해서 잘못된 쿼리다.
+
+  ```java
+  String query = "SELECT o.address FROM Order o";
+  List<Address> addresses = em.createQuery(query, Address.class).getResultList();
+  ```
+  - Order 엔티티가 시작점이다. 엔티티를 통해서 임베디드 타입을 조회할 수 있다.
+
+  ```xml
+  select order.city,
+         order.street,
+         order.zipcode
+  from
+    Orders order
+  ```
+  - 위와 같은 쿼리가 실행된다.
+  - 임베디드 타입은 엔티티 타입이 아닌 값 타입이다. 따라서 이렇게 직접 조회한 임베디드 타입은 영속성 컨텍스트에서 관리 되지 않는다. 
 ## 10.2.15 Named 쿼리 : 정적 쿼리
 
 
