@@ -241,7 +241,7 @@ em.CreateQuery(jpql,Member.class).getResultList()
 - 프로젝션 대상은 아래 3가지가 있다. 
   - 엔티티
   - 임베디드 타입
-  - 스칼라 타 (숫자,문자등 기본 데이터 타입)
+  - 스칼라 타입 (숫자,문자등 기본 데이터 타입)
 ### 엔티티 프로젝션
 ![image.jpg1](./images/10.2_8.PNG)
 
