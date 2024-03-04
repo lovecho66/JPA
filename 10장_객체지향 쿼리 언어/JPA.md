@@ -628,9 +628,127 @@ inner join Member m on o.member_id = m.id
 ![image.jpg1](./images/10.2_44.PNG) |![image.jpg2](./images/10.2_45.PNG)
 |----|----|  
 - 실행된 SQL을 보면 총 3번의 조인이 발생했다.
-- o.address처럼 임베디드 타입에 접근하는 것도 단일 값 연관 경로 탐색이지만 주문 테이블에 이미 포함되어 있으므로 조인이 발생하지 않는다. 
-## 10.2.9
-## 10.2.10
+- o.address처럼 임베디드 타입에 접근하는 것도 단일 값 연관 경로 탐색이지만 주문 테이블에 이미 포함되어 있으므로 조인이 발생하지 않는다.
+
+### 컬렉션 값 연관 경로 탐색
+```java
+// 성공 사례
+select t.members from Team t;
+
+// 실패 사례 - 컬렉션에서 경로 탐색 (별칭 사용x)
+select t.members.username from Team t;
+
+//컬렉션에서 경로 탐색(조인, 별칭 사용 o)
+select m.username from Team t join t.member m
+```
+- t.members처럼 컬렉션까지는 경로 탐색이 가능하다.
+- 하지만 t.mebmers.username처럼 컬렉션에서 경로 탐색을 시작하는 것은 안된다.
+- 컬렉션에서 경로를 탐색하고 싶으면 join을 사용해서 새로운 별칭을 획득 후 별칭부터 다시 경로를 탐색해야한다. 
+
+```java
+select t.members.size from Team t
+```
+- 컬렉션은 컬렉션의 크기를 구할 수 있는 size라는 특별한 기능을 사용할 수 있다.
+- size를 사용하면 COUNT 함수를 사용하는 SQL로 적절히 변환된다.
+
+### 경로 탐색을 사용한 묵시적 조인 시 주의사항
+- 경로 탐색을 사용하면 묵시적 조인이 발생해서 SQL에서 내부 조인이 일어날 수 있다.
+- 주의사항
+  - 항상 내부 조인이다.
+  - 컬렉션은 경로 탐색의 끝이다.
+    - 컬렉션에서 경로 탐색을 하려면 명시적으로 조인해서 별칭을 얻어야 한다.
+  - 경로 탐색은 주로 SELECT, WHERE절(다른 곳에서도 사용됨)에서 사용하지만 묵시적 조인으로 인해 SQL의 FROM 절에 영향을 준다. 
+  <details>
+      <summary>묵시적 조인-FROM절 영향</summary>
+      
+      <!-- summary 아래 한칸 공백 두어야함 -->
+      묵시적 조인은 일반적으로 JOIN 키워드를 사용하지 않고, WHERE 절에서 조인 조건을 명시하여 조인을 수행하는 방식이다.
+      WHERE 절에서 조인 조건을 명시했지만, 명시적으로 FROM 절에 해당 테이블을 포함시키지 않았기 때문에 어떤걸 먼저 수행해야할지
+  모른다. 
+  </details>
+   
+  
+## 10.2.9 서브쿼리
+- JPQL도 SQL처럼 서브쿼리를 지원한다.
+- JPQL 서브쿼리를 사용하는데는 몇가지 제약이 있다.
+  - 서브쿼리를 WHERE,HAVING절에서만 사용할 수 있다.
+  - SELECT, FROM 절에서는 사용할 수 없다.
+  > 하이버네이트의 HQL은 SELECT 절의 서브쿼리도 허용한다. 하지만 아직까지 FROM 절의 서브쿼리는 지원하지 않는다.
+    일부 JPA 구현체는 FROM절의 서브 쿼리도 지원한다.
+- 서브 쿼리 함수
+  - EXISTS (서브쿼리)
+  - ALL/ANY/SOME (서브쿼리) : ALL 조건 모두 만족, ANY OR SOME : 조건을 하나라도 만족
+  - IN (서브쿼리)  : 서브쿼리 결과중 하나라도 같은 것이 있으면 참
+## 10.2.10 조건식
+![image.jpg1](./images/10.2_46.PNG)
+
+- 연산자 우선 순위
+  1. 경로 탐색 연산(.)
+  2. 수학연산: +,-(단항 연산자),*,/,+,-
+  3. 비교연산: = > >= < <= , <> , BETWEEN, LIKE, IN,EMPTY, EXISTS ,MEMBER [OF] - 부정 포함
+  4. 논리 연산 : NOT, AND ,OR
+
+- 논리 연산과 비교식
+  - 논리 연산
+  - AND： 둘 다 만족하면 참
+  - OR: 둘 중 하나만 만족해도 참 
+  - NOT： 조건식의 결과 반대
+
+  -  비교식
+    비교식은 다음과 같다.
+    = | > | >= | < | <= | <>
+
+- Between, IN, Like, NULL 비
+  - Between 식
+    - BETWEEN A AND B
+    - X는 A ~ B 사이의 값이면 참(A, B 값 포함)
+  - IN 식
+    - 표와 같은 값이 예제에 하나라도 있으면 참아다. W 식의 예제에는 서브쿼리를 사용할 수 있다.
+  - Like 식
+    - 문자표현식과 패턴값을 비교한다.
+      - %(퍼센트): 아무 값들이 입력되어도 된다(값이 없어도 됨).
+      - _(언더라인): 한 글자는 아무 값이 입력되어도 되지만 값이 있어야 한다.
+  - NULL 비교식
+    -  NULL 인지 비교한다. NULL은 =으로 비교하면 안 되고 꼭 IS NULL을 사용한다.
+
+- 컬렉션 식 
+  - EMPTY
+  
+    ![image.jpg1](./images/10.2_47.PNG) |![image.jpg2](./images/10.2_48.PNG)
+    |----|----|
+    
+      - 컬렉션은 컬렉션 식 이외에 다른 식은 사용할 수 없다.
+      - 문법 : 컬렉션 값 연관 경로 IS [NOT] EMPTY
+      - 설명 : 컬렉션에 값이 비었으면 참
+      - 컬렉션은 컬렉션 식만 사용할 수 있다는 점을 주의하다. IS NULL처럼 컬렉션 식이 나니 것은 사용할 수 없다.
+  - MEMBER 
+    ![image.jpg1](./images/10.2_49.PNG)
+      - 문법 : 엔티티나 값 [NOT] MEMBER [OF] 컬렉션 값 연관 경로
+      - 설명 : 엔티티나 값이 컬렉션에 포함되어 있으면 참
+
+- 스칼라 식
+  - 스칼라는 숫자,문자,날짜,CASE,엔티티 타입 같은 가장 기본적인 타입들을 말한다.
+  ![image.jpg1](./images/10.2_50.PNG)
+  ![image.jpg1](./images/10.2_51.PNG)
+  ![image.jpg1](./images/10.2_52.PNG)
+
+```java
+select CURRENT_DATE, CURRENT_TIME, CURRENT_TIMESTAMP from Team t 
+//결과 : 2013-08-19, 23:38:17, 2013-08-19 23:38:17.736
+```
+```java
+종료 이벤트 조회
+select e from Event e where e .endDate < CURRENT_DATE
+```
+
+```java
+select year (CURRENT_TIMESTAMP) , month (CURRENT_TIMESTAMP) , 
+day(CURRENT_TIMESTAMP) 
+from Member
+```
+- 하이버네이트는 날짜 타입에서 년, 월，일, 시간，분, 초 값을 구하는 기능을 지원 
+한다.(YEAR, MONTH, DAY, HOUR, MINUTE, SECOND)
+
 ## 10.2.11
 ## 10.2.12
 ## 10.2.13
