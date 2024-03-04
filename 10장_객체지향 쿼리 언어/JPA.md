@@ -749,7 +749,7 @@ from Member
 - 하이버네이트는 날짜 타입에서 년, 월，일, 시간，분, 초 값을 구하는 기능을 지원 
 한다.(YEAR, MONTH, DAY, HOUR, MINUTE, SECOND)
 
--CASE 식
+- CASE 식
   - 특정 조건에 따라 분기할 때 CASE 식을 사용한다. CASE 식은 4가지 종류가 있다.
     ■ 기본 CASE
     ■ 심플 CASE
@@ -776,29 +776,116 @@ List resultList = em.createQuery ("select i from Item i").getResultList()
     
   - 조인 전략(InheritanceType. JOINED)
     // SQL
-    SELECT
-    i .ITEM_ID, i.DTYPE, i.name, i.price, i.stockQuantity, 
-    b.author, b.isbn, 
-    a.artist, a.etc, 
-    m,actor, m.director
-    FROM Item i
-    left outer join
-    Book b on i .ITEM_ID=b.ITEM_ID 
-    left outer join
-    Album a on i .ITEM_ID=a.ITEM_ID 
-    left outer join
-    Movie m on i .ITEM ID=m.ITEM ID
+    SELECT i.ITEM_ID, i.DTYPE, i.name, i.price, i.stockQuantity, 
+          b.author, b.isbn, 
+          a.artist, a.etc, 
+          m,actor, m.director
+    FROM Item i left outer join Book b
+          on i .ITEM_ID=b.ITEM_ID 
+          left outer join
+          Album a on i .ITEM_ID=a.ITEM_ID 
+          left outer join
+          Movie m on i .ITEM ID=m.ITEM ID
+- TYPE
+  ```java
+  예 Item 중에 Book, Movie를 조회하라.
+  //JPQL
+  select i from Item i
+  where type(i) IN (Book, Movie)
+  //SQL
+  SELECT i FROM Item i 
+  WHERE i.DTYPE in ('B', 'M')
+  ```
+  - 엔티티의 상속 구조에서 조회 대상을 특정 자식 타입으로 한정할 때 주로 사용한다.
 
-## 10.2.12
-## 10.2.13
-## 10.2.14
+- TREAT(JPA 2.1)
+  - TREAT는 JPA 2.1 에 추가된 기능인데 자바의 타입 캐스팅과 비슷하다.
+  - 상속 구조에서 부모 타입을 특정 자식 타입으로 다룰 때 사용한다.
+  - JPA 표준은 FROM, WHERE절에서 사용할 수 있지만, 하이버네이트는 SELECT 절에서도 TREAT를 사용할 수 있다.
+   ![image.jpg1](./images/10.2_59.PNG)
+    -  treat를 사용해서 부모 타입인 Item을 자식 타입인 Book으로 다룬다. 따라서 author 필드에 접근할 수 있다.
+    
+## 10.2.12 사용자 정의 함수 호출(JPA 2.1)
+  ![image.jpg2](./images/10.2_60.PNG) | ![image.jpg1](./images/10.2_61.PNG) 
+  |----|----|
+   - 하이버네이트 구현체를 사용하면 방언 클래스를 상속해서 구현하고 사용할 데이터베이스 함수를 미리 등록해야한다.
+   - 하이버네이트 구현체를 사용하면 select group_concat(i.name) from Item i 이렇게 축약해서 사용할 수 있다.
+
+## 10.2.13 기타 정리
+- enum은 = 비교 연산만 지원한다.
+- 임베디드 타입은 비교를 지원하지 않는다.
+- EMPTY STRING
+  - JPA 표준은 "을 길이 0인 Empty String으로 정했지만 데이터베이스에 따라 ‘’를 
+    NULL로 사용하는 데이터베이스도 있으므로 확인하고 사용해야 한다.
+- NULL 정의
+  - 조건을 만족하는 데이터가 하나도 없으면 NULL이다
+  - NULL은 알 수 없는 값이다. NULL과의 모든 수학적 계산 결과는 NULL이 된다
+  - Null == Null은 알 수 없는 값이다.
+  - Null is Null은 참이다.
+
+## 10.2.14 엔티티 직접 사용
+- 기본키 값
+  - JPQL에서 엔티티 객체를 직접 사용하면 SQL에서는 해당 엔티티의 기본 키 값을 사용한다.
+  ![image.jpg1](./images/10.2_62.PNG)
+  - count(m)는 엔티티의 별칭을 직접 넘겨줬다.
+  - count(m) 처럼 엔티티를 직접 사용하면 JPQL이 SQL로 변환될 때 해당 엔티티의 기본 키를 사용한다.
+  -  실제 실행된 SQL은 둘 다 같다
+  ![image.jpg1](./images/10.2_63.PNG)
+  - JPQL에서 where m = :member로 엔티티를 직접 사용하는 부분이 SQL에서 where m. id=?로 기본 키 값을 사용하도록 변환된 것을 확인할 수 있다
+  ![image.jpg1](./images/10.2_64.PNG)
+  - 식별자 값을 직접 사용해도 전 결과와 동일하다.
+    
+- 외래키 값
+  ![image.jpg2](./images/10.2_65.PNG) | ![image.jpg1](./images/10.2_66.PNG) 
+  |----|----|
+  - m.team은 현재 team_id 라는 외래키와 매핑 되어있다
+  - 
+  ![image.jpg1](./images/10.2_67.PNG)
+  - 외래키에 식별자 값을 직접 사용한다.
+  - m.team.id를 보면 Member와 Team 간에 묵시적 조인이 일어날 것 같지만 MEMBER 테이블이 team_id 외래 키를 가지고 있으므로 묵시적 조인은 일어나지 않는다
+  - 물론 m.team.name을 호출하면 묵시적 조인이 일어난다.
+  - m.team을 사용하든 m.team.id를 사용하든 생성되는 SQL은 같다.
+
 ## 10.2.15 Named 쿼리 : 정적 쿼리
+- JPQL 쿼리는 크게 동적 쿼리와 정적 쿼리로 나눌 수 있다.
+  - 동적 쿼리
+    - em.createQuery ("select") 처럼 JPQL을 문자로 완성해서 직접넘기는 것을 동적 쿼리라한다.
+    - 런타임에 특정 조건에 따라 JPQL을 동적으로 구성할 수 있다
+  - 정적 쿼리
+    - 미리 정의한 쿼리에 이름을 부여해서 필요할 때 사용할 수 있는데 이것을 Named 쿼리라 한다.
+    - 한번 정의하면 변경할 수 없는 정적인 쿼리다.
+    - 애플리케이션 로딩 시점에 JPQL 문법을 체크하고 미리 파싱해둔다
+    - 오류를 빨리 확인할 수 있고, 사용하는 시점에는 파싱된 결과를 재사용하므로 성능상 이점이 있다.
+    - 변하지 않는 정적 SQL이 생성되므로 데이터베이스의 조회 성능 최적화에도 도움이 된다.
+    - @NamedQuery 어노테이션을 사용해서 자바 코드에 작성하거나 또는 XML 문서에 작성 할 수 있다.
+      
+- Named 쿼리를 어노테이션에 정의
+  - Named 쿼리는 이름 그대로 쿼리에 이름을 부여해서 사용하는 방법이다.
+  
+  ![image.jpg1](./images/10.2_68.PNG)
+  - @NamedQuery.name에 쿼리 이름을 부여하고 @NamedQuery.query에 사용할 쿼리를 입력한다.
+    
+  ![image.jpg1](./images/10.2_69.PNG)
+  - em.createNamedQuery () 메소드에 Named 쿼리 이름을 입력하면 된다.
 
+  > Named 쿼리 이름을 간단히 findByUsername이라 하지 않고 Member.findByUsername처럼 앞에 엔티티 이름을 준다.
+    기능적으로 의미가 있는 건 아니고 영속성 유닛 단위로 관리되므로 충돌을 방지하기 위해 쓴다. 관리하기 쉽다.
+  
+  ![image.jpg1](./images/10.2_70.PNG)
+  - 하나의 엔티티에 2개 이상의 Named 쿼리를 정의하려면 @NamedQueries 어노테이션을 사용한다.
 
-# 10.3 Criteria
+- @NamedQuery 어노테이션
+  ![image.jpg1](./images/10.2_71.PNG)
+  - lockMode： 쿼리 실행 시 락을 건다.
+  - hints：여기서 힌트는 SQL 힌트가 아니라 JPA 구현체에게 제공하는 힌트다. (2차 캐시를 다룰 때 사용한다.)
 
+- Named 쿼리를 XML에 정의
+  ![image.jpg1](./images/10.2_72.PNG)
+  - JPA에서 어노테이션으로 작성할 수 있는 것은 XML 로도 작성할 수 있다. 물
+  -  Named 쿼리를 작성할 때는 어노테이션보다 XML을 사용하는 것이 더 편리하다.
+  -  정의한 xml을 인식하도록 META-INF/persistence.xml에 다음 코드를 추가해야 한다.
+  > XML에서 &. <,>는 XML 예약문자다. 대신에 &amp;, &lt；, &gt;를 사용해야 한다. <![CDATA[ ]]>를 사용하면 그 사이에 문장을 그대로 출력하므로 예약문자도 사용할 수 있다.
 
-```java
-```
-
-![ConnectionMaker](./images/5.3.PNG)   
+- 환경에 따른 설정
+  - 만약 XML과 어노테이션에 같은 설정이 있으면 XML이 우선권을 가진다.
+  - 애플리케이션이 운영 환경에 따라 다른 쿼리를 실행해야 한다면 각 환경에 맞춘 XML을 준비해 두고 XML만 변경해서 배포하면 된다.
