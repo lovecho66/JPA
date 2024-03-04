@@ -749,6 +749,18 @@ from Member
 - 하이버네이트는 날짜 타입에서 년, 월，일, 시간，분, 초 값을 구하는 기능을 지원 
 한다.(YEAR, MONTH, DAY, HOUR, MINUTE, SECOND)
 
+-CASE 식
+  - 특정 조건에 따라 분기할 때 CASE 식을 사용한다. CASE 식은 4가지 종류가 있다.
+    ■ 기본 CASE
+    ■ 심플 CASE
+    ■ COALESCE
+    ■ NULLIF
+
+  ![image.jpg1](./images/10.2_53.PNG) |![image.jpg2](./images/10.2_54.PNG)| ![image.jpg1](./images/10.2_55.PNG)
+  |----|----|----|
+  ![image.jpg2](./images/10.2_56.PNG) | ![image.jpg1](./images/10.2_57.PNG) 
+  |----|----|
+  
 ## 10.2.11
 ## 10.2.12
 ## 10.2.13
