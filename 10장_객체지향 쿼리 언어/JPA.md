@@ -758,10 +758,37 @@ from Member
 
   ![image.jpg1](./images/10.2_53.PNG) |![image.jpg2](./images/10.2_54.PNG)| ![image.jpg1](./images/10.2_55.PNG)
   |----|----|----|
+  
   ![image.jpg2](./images/10.2_56.PNG) | ![image.jpg1](./images/10.2_57.PNG) 
   |----|----|
   
-## 10.2.11
+## 10.2.11 다형성 쿼리
+  ![image.jpg1](./images/10.2_58.PNG)
+- JPQL로 부모 엔티티를 조회하면 그 자식 엔티티도 함께 조회한다
+- Item의 자식으로 Book, Album, Movie가 있다.
+
+```java
+List resultList = em.createQuery ("select i from Item i").getResultList()
+```
+  - 단일 테이블 전략 (InheritanceType.SINGLE_TABLE)
+    //SQL
+    SELECT * FROM ITEM
+    
+  - 조인 전략(InheritanceType. JOINED)
+    // SQL
+    SELECT
+    i .ITEM_ID, i.DTYPE, i.name, i.price, i.stockQuantity, 
+    b.author, b.isbn, 
+    a.artist, a.etc, 
+    m,actor, m.director
+    FROM Item i
+    left outer join
+    Book b on i .ITEM_ID=b.ITEM_ID 
+    left outer join
+    Album a on i .ITEM_ID=a.ITEM_ID 
+    left outer join
+    Movie m on i .ITEM ID=m.ITEM ID
+
 ## 10.2.12
 ## 10.2.13
 ## 10.2.14
