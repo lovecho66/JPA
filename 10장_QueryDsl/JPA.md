@@ -47,9 +47,50 @@ Lucene, Hibernate Search, 몽고DB, 자바 컬렉션 등을 다양하게 지원�
 
 ### 10.4.3 검색 조건 쿼리
 
+![image.jpg1](./images/10.4_6.PNG) |![image.jpg2](./images/10.4_7.PNG)
+|----|----|
+
+- QueryDSL의 where 절에는 and 나 or을 사용할 수 있다. 또한 다음처럼 여러 검색 조건을 사용해도 된다. 이 때는 and 연산이 된다.
+- .where(item.name.eq("좋은상품"),item.price.gt(20000)) 로 and를 쓰지 않고 ,로도 표현해서 사용할 수 있다.
+
+![ConnectionMaker](./images/10.4_8.PNG)   
+
+- where()에서 사용되는 여러 메소드 들이 있다.
+- IDE가 제공하는 코드 자동 완성 기능의 도움을 받으면 필요한 메소드를 손쉽게 찾을 수 있다.
+
 ### 10.4.4 결과 조회
+
+- 쿼리 작성이 끝나고 결과 조회 메소드를 호출하면 실제 데이터베이스를 조회한다.
+- uniqueResult()나 list()를 사용하고 파라미터로 프로젝션 대상을 넘겨준다.
+- 결과 조회 API는 com.myserna.query.Projectable에 정의되어 있다.
+- 대표 결과 조회 메소드가 아래와 같다.
+  - uniqueResult() : 조회 결과가 한 건일 때 사용한다. 조회 결과가 없으면 null을 반환하고 결과가 하나 이상이면 com.mysema.query . NonUniqueResultException 예외가 발생한다.
+  -  singleResult() : uniqueResult()와 같지만 결과가 하나 이상이면 처음 데이터를 반환한다.
+  -  list() : 결과가 하나 이상일 때 사용한다. 결과가 없으면 빈 컬렉션을 반환한다.
+    
 ### 10.4.5 페이징과 정렬
+
+![ConnectionMaker](./images/10.4_9.PNG)   
+
+- 정렬은 orderBy를 사용하는데 쿼리 타입(Q)이 제공하는 asc(),desc ()를 사용한다.
+- 페이징은 offset과 limit을 적절히 사용해서 사용하면 된다.
+
+![ConnectionMaker](./images/10.4_10.PNG)   
+- restrict () 메소드에 com.mysema.query.QueryModifiers를 파라미터로 사용해도 된다.
+
+- 실제 페이징 처리를 하려면 검색된 전체 데이터 수를 알아야 한다.
+
+![ConnectionMaker](./images/10.4_11.PNG)   
+- list() 대신에 listResults()를 사용한다.
+- listResults()를 사용하면 전체 데이터를 조회를 위한 count 쿼리를 한번 더 실행한다.
+- SearchResults()를 반환하는데 이 객체에서 전체 데이터 수를 조회할 수 있다.
+  
 ### 10.4.6 그룹
+
+![ConnectionMaker](./images/10.4_12.PNG)   
+
+- groupBy를 사용하고 그룹화된 결과를 제한하려면 having을 사용하면 된다.
+
 ### 10.4.7 조인
 ### 10.4.8 서브쿼리
 ### 10.4.9 프로젝션과 결과 반환
@@ -59,6 +100,8 @@ Lucene, Hibernate Search, 몽고DB, 자바 컬렉션 등을 다양하게 지원�
 ### 10.4.13 QueryDSL 정리
 
 ## 10.5 네이티브 SQL
+
+## 10.6 객체지향 쿼리 심화
 
 
 ---------------------------------------
