@@ -37,41 +37,27 @@ Lucene, Hibernate Search, 몽고DB, 자바 컬렉션 등을 다양하게 지원�
 
 ![image.jpg1](./images/10.4_4.PNG) |![image.jpg2](./images/10.4_5.PNG)
 |----|----|
-- 쿼리 타입(Q)은 사용하기 편리하도록 기본 인스턴스를 보관하고 있다.
+- 쿼리 타입(Q)을 사용하기 편리하도록 기본 인스턴스를 보관하고 있다.
 - 단, 같은 엔티티를 조회하거나 조인하거나 같은 엔티티를 서브쿼리에서 사용하면 같은 별칭이 사용되므로 이때는 별칭을 직접 지정해줘야한다.
 - 쿼리 타입의 기본 인스턴스를 사용하면 import static을 활용해서 코드를 더 간결하게 작성할 수 있다. 
 
----------------------------------------
-## 5.1 단방향 연관관계
-### 5.1.1 순수한 객체 연관관계
-```java
-public class Member {
-  private String id; 
-  private String username;
-  private Team team; //팀의 참조 보관
+![ConnectionMaker](./images/10.4_5.PNG)    
 
-  public void setTeam(Team team) { 
-    this,team = team;
-  }
-//Getter, Setter ...
-```
-1. Member 엔티티가 Team 엔티티를 참조할 수 있게 설정했다.
-![ConnectionMaker](./images/5.3.PNG)   
-2.객체는 참조를 사용해서 연관관계를 탐색할 수 있다.(객체 그래프 탐색)
-### 5.1.2 테이블 연관관계
-```sql
-CREATE TABLE MEMBER (
-  MEMBER_ID VARCHAR(255) NOT NULL, 
-  TEAM_ID VARCHAR(255),
-  USERNAME VARCHAR(255),
-  PRIMARY KEY (MEMBER_ID)
-)
-CREATE TABLE TEAM (
-  TEAM_ID VARCHAR(255) NOT NULL, 
-  NAME VARCHAR(255),
-  PRIMARY KEY (TEAM_ID)
-)
-ALTER TABLE MEMBER ADD CONSTRAINT FK_MEMBER_TEAM 
-  FOREIGN KEY (TEAM_ID)
-  REFERENCES TEAM
-```
+- 쿼리 타입을 기본 인스턴스로 보관해서 사용하면 QMember.member가 아닌 member로 사용할 수 있게 된다. 
+
+### 10.4.3 검색 조건 쿼리
+### 10.4.4 결과 조회
+### 10.4.5 페이징과 정렬
+### 10.4.6 그룹
+### 10.4.7 조인
+### 10.4.8 서브쿼리
+### 10.4.9 프로젝션과 결과 반환
+### 10.4.10 수정，삭제 배치 쿼리
+### 10.4.11 동적 쿼리 
+### 10.4.12 메소드 위임
+### 10.4.13 QueryDSL 정리
+
+## 10.5 네이티브 SQL
+
+
+---------------------------------------
