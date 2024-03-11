@@ -130,13 +130,58 @@ Lucene, Hibernate Search, 몽고DB, 자바 컬렉션 등을 다양하게 지원�
 
 - select 절에 조회 대상을 지정하는 것을 프로젝션이라 한다.
 
-### 프로젝션 대상이 하나
+#### 프로젝션 대상이 하나
+![ConnectionMaker](./images/10.4_19.PNG)  
+- 프로젝션이 하나면 해당 타입으로 반환한다.
+
+#### 프로젝션 대상이 여러개
 ![ConnectionMaker](./images/10.4_20.PNG)  
 
 - 프로젝션 대상으로 여러 필드를 선택하면 QueryDSL은 기본으로 com.mysemaquery.Tuple이라는 Map과 비슷한 내부 타입을 사용한다.
-- 조회 결과는 tuple.get()
-  
+- 조회 결과는 tuple.get() 메소드에 조회한 쿼리타입을 지정하면 된다.
+
+- 쿼리결과를 엔티티가 아닌 특정 객체로 받고싶으면 빈 생성 기능을 사용한다.
+- QueryDSL은 객체를 생성하는 다양한 방법을 제공한다.
+  - 프로퍼티 접근
+  - 필드 직접 접근
+  - 생성자 사용
+- 원하는 방법을 지정하기 위해 com.mysem.query, types.Projections를 사용하면 된다.
+
+#### 프로퍼티 접근
+![ConnectionMaker](./images/10.4_21.PNG)  
+- Projections.bean () 메소드는 수정자(Setter)를 사용해서 값을 채운다.
+-  쿼리 결과는 name인데 ItemDTO는 username 프로퍼티를 가지고 있다. 이렇게 쿼리 결과와 매핑 프로퍼티 이름이 다르면 as 별칭을 주면된다.
+
+![ConnectionMaker](./images/10.4_22.PNG)  
+- Projections.fields() 메소드를 사용하면 필드에 직접 접근해서 값을 채워준다.
+- 필드를 private로 설정해도 동작한다.
+
+
+![ConnectionMaker](./images/10.4_23.PNG)|![ConnectionMaker](./images/10.4_24.PNG)  
+|------|------|
+
+-  Projections.constructor() 메소드는 생성자를 사용한다.
+-  프로젝션과 파라미터 순서가 같은 생성자가 필요하다.
+
+#### Distinct
+
+```java
+query.distinct().from(item)...
+```
 ### 10.4.10 수정，삭제 배치 쿼리
+- QueryDSL도 수정，삭제 같은 배치 쿼리를 지원한다.
+- JPQL 배치 쿼리와 같이 영속성 컨텍스트를 무시하고 데이터베이스를 직접 쿼리를 실행한다.
+<details>
+<summary>배치 쿼리 </summary>
+
+<!-- summary 아래 한칸 공백 두어야함 -->
+
+JPQL 배치 쿼리는 JPA(Java Persistence API)에서 제공하는 기능 중 하나입니다. 이는 대량의 데이터를 처리할 때 성능을 향상시키는 방법 중 하나다.
+
+JPQL 배치 쿼리를 사용하면 일괄 업데이트 또는 삭제와 같은 대량 작업을 처리할 때 단일 쿼리를 실행하여 모든 엔티티를 처리할 수 있습니다. 이를 통해 데이터베이스와의 통신 횟수를 줄이고 처리 시간을 단축할 수 있습니다.
+
+</details>
+  
 ### 10.4.11 동적 쿼리 
 ### 10.4.12 메소드 위임
 ### 10.4.13 QueryDSL 정리
