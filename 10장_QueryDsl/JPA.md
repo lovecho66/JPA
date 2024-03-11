@@ -269,10 +269,103 @@ JPQL 배치 쿼리를 사용하면 일괄 업데이트 또는 삭제와 같은 �
 - @FieldResult를 사용해서 컬럼 명과 필드명을 직접 매핑한다
 - 이 설정은 엔티티의 필드에 정의한 @Column보다 앞선다.
 - 조금 불편한 것은 @FieldResult를 한 번이라도 사용하면 전체 필드를 @FieldResult로 매핑해야 한다.
-- 두 엔티티를 조회하는데 컬럼명이 중복될 때도 @FieldResult를 사용해야 한다
+
+```java
+SELECT A.ID, B.ID FROM A, B
+```
+```xml
+SELECT
+A. ID AS A_ID,
+B. ID AS B_ID
+FROM A, B
+```
+- 두 엔티티를 조회하는데 컬럼명이 중복될 때도 @FieldResult를 사용해야 한다.
+- A, B 둘 다 ID라는 필드를 가지고 있으므로 컬럼명이 충돌한다. 따라서 다음과 같이 별칭을 적절히 사용하고 @FieldResult로 매핑하면 된다.
+
+#### 결과 매핑 어노테이션
+- @SqlResultSetMapping 
+![ConnectionMaker](./images/10.5_7.PNG)
+
+- ©EntityResult
+![ConnectionMaker](./images/10.5_8.PNG)
+
+- ©FieldResult
+![ConnectionMaker](./images/10.5_9.PNG)
+
+- @ColumnResult
+![ConnectionMaker](./images/10.5_10.PNG)
 
 ### 10.5.2 Named 네이티브 SQL
 
+![ConnectionMaker](./images/10.5_11.PNG)|![ConnectionMaker](./images/10.5_12.PNG)
+|--------|---------|
+- JPQL처 럼 네이티브 SQL도 Named 네이티브 SQL을 사용해서 정적 SQL을 작성할 수 있다. 
+- @NamedNativeQuery로 Named 네이티브 SQL을 등록한다.
+- JPQL Named 쿼리와 같은 createNamedQuery 메소드를 한다. 따라서 TypeQuery를 사용할 수 있다.
+
+![ConnectionMaker](./images/10.5_13.PNG)|![ConnectionMaker](./images/10.5_14.PNG)
+|--------|---------|
+- Named 네이티브 쿼리에서 resultSetMapping = "memberWithOrderCount"로 조회 결과를 매핑할 대상까지 지정했다.
+- 정의한 Named 네이티브 쿼리를 em.createNamedQuery ("Member.memberWithOrderCount").getResultList()로 사용할 수 있다.
+
+#### @NamedNativeQuery
+![ConnectionMaker](./images/10.5_15.PNG)
+- hints 속성이 있는데 이것은 SQL 힌트가 아니라 하이버네이트 같은 JPA 구현체에 제공하는 힌트다.
+
+![ConnectionMaker](./images/10.5_16.PNG)
+- 여러 Named 네이티브 쿼리를 선언할 수 있다.
+
+### 네이티브 SQL XML에 정의
+
+![ConnectionMaker](./images/10.5_17.PNG)
+
+- XML에 정의할 때는 순서를 지켜야한다.<named-native-query>를 먼저 정의하고 <sql-result-set-mapping>를 정의해야 한다.
+
+![ConnectionMaker](./images/10.5_18.PNG)
+
+> 네이티브 SQL은 보통 JPQL로 작성하기 어려운 복잡한 SQL 쿼리를 작성하거나 SQL을 최적화해서 데이터베이스 성능을 향상할 때 사용한다.
+>  이런 쿼리들은 대체로 복잡하고 라인수가 많다. 따라서 어노테이션보다는 XML 사용하는 것이 여러모로 편리하다.
+> 자바는 멀티 라인 문자열을 지원하지 않으므로 라인을 변경할 때마다 문자열을 더해야 하는 큰 불편함이 있다. 반면에 XML을 사용하면 SQL 개발 도구에서 완성한 SQL을 바로 붙여 넣을 수 있어 편리하다
+
+### 네이티브 SQL 정리
+
+- 네이티브 SQL도 JPQL을 사용할 때와 마찬가지로 Query, TypeQuery (Named 네이티브 쿼리의 경우에만) 를 반환한다. 따라서 JPQL API를 그대로 사용할 수 있다.
+
+![ConnectionMaker](./images/10.5_19.PNG)|![ConnectionMaker](./images/10.5_20.PNG)
+|--------|---------|
+- 네이티브 SQL을 사용해도 페이징 처리 API를 적용할 수 있다
+  
+- 네이티브 SQL은 JPQL이 자동 생성하는 SQL을 수동으로 직접 정의하는 것이다. 따라서 JPA가 제공하는 기능 대부분을 그대로 사용할 수 있다
+- 네이티브 SQL은 관리하기 쉽지 않고 자주 사용하면 특정 데이터베이스에 종속적인 쿼리가 증가해서 이식성이 떨어진다.
+- 표준 JPQL을 사용하고 기능이 부족하면 차선책으로 하이버네이트 같은 JPA 구현체가 제공하는 기능을 사용하자.
+- 네이티브 SQL로도 부족함을 느낀다면 MyBatis나 스프링 프레임워크가 제공하는 JdbcTemplate 같은 SQL매퍼와 JPA를 함께 사용하는 것도 고려할만하다.
+
+### 스토어드 프로시저(JP A 2.1)
+
+#### 스토어드 프로시저 사용
+![ConnectionMaker](./images/10.5_21.PNG)|![ConnectionMaker](./images/10.5_22.PNG)
+|-------|--------|
+
+- 단순히 입력 값을 두 배로 증가시켜 주는 proc_m ultiply라는 스토어드 프로시저가 있다
+- 스토어드 프로시저를 사용하려면 em.createStoredProcedureQuery () 메소드에 사용할 스토어드 프로시저 이름을 입력하면 된다.
+- registerStoredProcedureParameter() 메소드를 사용해서 프로시저에서 사용할 파라미터를 순서，타입，파라미터 모드 순으로 정의하면 된다.
+
+![ConnectionMaker](./images/10.5_23.PNG)|![ConnectionMaker](./images/10.5_24.PNG)
+|-------|--------|
+
+#### Named 스토어드 프로시저 사용
+![ConnectionMaker](./images/10.5_25.PNG)
+- 스토어드 프로시저 쿼리에 이름을 부여해서 사용하는 것을 Named 스토어드 프로시저라 한다
+- @NamedStoredProcedureQuery로 정의하고 name 속성으로 이름을 부여한다.
+- procedureName 속성에 실제 호줄할 프로시저 이름을 적어준다.
+- @StoredProcedureParameter를 사용해서 파라미터 정보를 정의한다.
+- 둘 이상을 정의하려면 @NamedStoredProcedureQueries를 사용하면 된다.
+
+![ConnectionMaker](./images/10.5_26.PNG)|![ConnectionMaker](./images/10.5_27.PNG)
+|-------|--------|
+
+- Named 스토어드 프로시저는 em.createNamedStoredProcedureQuery() 메소드에 등록한 Named 스토어드 프로시저 이름을 파라미터로 사용해서 찾아올 수 있다.
+ 
 ## 10.6 객체지향 쿼리 심화
 
 
