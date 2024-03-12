@@ -188,8 +188,12 @@ JPQL 배치 쿼리를 사용하면 일괄 업데이트 또는 삭제와 같은 �
 - com.mysema.query.BooleanBuilder를 사용하면 특정 조건에 따른 동적 쿼리를 편리하게 생성할 수 있다
 
 ### 10.4.12 메소드 위임
-- ????
-  
+
+![ConnectionMaker](./images/10.0_25.PNG)  
+
+- 메소드 위임 Delegatemethods 기능을 사용하면 쿼리 타입에 검색 조건을 직접 정의할 수 있다.
+- 정적static 메소드를 만들고 @com.mysema.query.armotat ons.QueryDelegate 어노테이션 속성으로 이 기능을 적용할 엔티티를 지정한다.
+
 ## 10.5 네이티브 SQL
 - JPQL은 표준 SQL이 지원하는 대부분의 문법과 SQL 함수들을 지원하지만 특정 데이터베이스에 종속적인 기능은 지원하지 않는다.
 - 아래 기능들은 특정 데이터베이스에 종속되기 때문에 JPA에서 사용하지 않는다.
