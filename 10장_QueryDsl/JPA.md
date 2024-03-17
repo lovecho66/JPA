@@ -137,12 +137,21 @@ public void before(){
     는 조인이 필요 없는 경우도 있다. 그런데 이렇게 자동화된 count 쿼리는 원본 쿼리와 같이 모두 조인을 해버리기
     때문에 성능이 안나올 수 있다. count 쿼리에 조인이 필요없는 성능 최적화가 필요하다면, count 전용 쿼리를 별
     도로 작성해야 한다.
-    
+
+### 집합(강의)
+![ConnectionMaker](./images/0.0_4.PNG)
+
+- JPQL이 제공하는 모든 집합 함수를 제공한다.
+- tuple은 프로젝션과 결과반환에서 설명한다.
+  
 ### 10.4.6 그룹
 
 ![ConnectionMaker](./images/10.4_12.PNG)   
 
 - groupBy를 사용하고 그룹화된 결과를 제한하려면 having을 사용하면 된다.
+
++ 강의 
+![ConnectionMaker](./images/0.0_5.PNG)
 
 ### 10.4.7 조인
 ![ConnectionMaker](./images/10.4_13.PNG)   
