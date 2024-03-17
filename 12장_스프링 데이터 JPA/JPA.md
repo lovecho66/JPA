@@ -2,43 +2,28 @@
 
 <b>✨설명 전 Point 잡고 가기✨</b> 
 
-1. 객체의 참조와 테이블의 외래키를 매핑하는 것이 5장의 목표다.
-2. 연관관계 매핑을 이해하기 위한 핵심 키워드를 보면 방향,다중성,연관관계의 주인이 있다.
-  1) 방향은 단방향과 양방향 두개가 있는데 둘 중 한쪽만 참조하는 것을 단방향 관계라고 하고 양쪽 모두 서로 참조하는 것을 양방향 관계라고 한다.
-     (방향은  객체관계에서만 존재하고 테이블은 항상 양방향이다.)
-  2) 다중성은 다대일,일대다,일대일,다대다 로 표현할 수 있다.
-  3) 연관관계의주인은 객체를 양방향 연관관계로 만들면 연관관계의 주인을 정해야한다.
+jpa 편하게 사용하는게 스프링 jpa다. 
 
-## 5.1 단방향 연관관계
-### 5.1.1 순수한 객체 연관관계
 ```java
-public class Member {
-  private String id; 
-  private String username;
-  private Team team; //팀의 참조 보관
+ public Optional<Member> findById(Long id) {
+   Member member = em.find(Member.class, id);
+   return Optional.ofNullable(member);
+ }
 
-  public void setTeam(Team team) { 
-    this,team = team;
-  }
-//Getter, Setter ...
 ```
-1. Member 엔티티가 Team 엔티티를 참조할 수 있게 설정했다.
-![ConnectionMaker](./images/5.3.PNG)   
-2.객체는 참조를 사용해서 연관관계를 탐색할 수 있다.(객체 그래프 탐색)
-### 5.1.2 테이블 연관관계
-```sql
-CREATE TABLE MEMBER (
-  MEMBER_ID VARCHAR(255) NOT NULL, 
-  TEAM_ID VARCHAR(255),
-  USERNAME VARCHAR(255),
-  PRIMARY KEY (MEMBER_ID)
-)
-CREATE TABLE TEAM (
-  TEAM_ID VARCHAR(255) NOT NULL, 
-  NAME VARCHAR(255),
-  PRIMARY KEY (TEAM_ID)
-)
-ALTER TABLE MEMBER ADD CONSTRAINT FK_MEMBER_TEAM 
-  FOREIGN KEY (TEAM_ID)
-  REFERENCES TEAM
-```
+- 반환값이 null일 수 있다. Optional 타입을 한번 감싸서 내보내는거다.
+-java 8
+- 기본적으로 알쟈
+- 반복적인 코드를 인터페이스로 해결
+- 스프링 jpa가 알아서 구현체를 만들어서 인젝션해주는거다.
+- 로딩시점에 스프링관련된 인터페이스가 있으면 구현체를 만들어버림
+- sping data jpa가 JpaRepository를 extends 상속받을 것을 보고 구현체를 만들어서 주입(인젝션)시킨다.
+- 인터페이스 레포지토리는 @Repository안해줘도된다.
+- 인터페이스만 잡으면 스프링 데이터 jpa가  구현클래스를 만들어서 인젝션한다.
+
+- 중요) 엔티티,엔티티에 매핍된 pk의 타입이다.
+- jpa를 편하게 쓸 수 있게 구현코드를 작성할 필요없이 인터페이스만 선언해서 사용하기만 하면된다.
+- 구현체 없고 인터페이스만 있다.
+- jpa에 특화된 기술이 있는 jpaRepository를 상속 받는다.
+- 유사한 인터페이스로 편하게 개발하기 좋다.~
+- 구현하지않아도 스프링 데이터 jpa가 쿼리메소드 기능으로 쿼리를 만들지 않아도 구현해준다.
