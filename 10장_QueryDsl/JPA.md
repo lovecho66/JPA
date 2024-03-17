@@ -166,7 +166,19 @@ public void before(){
 ![ConnectionMaker](./images/10.4_15.PNG)   
 
 - join에 페치조인을 사용할 수 있다. 
-- 페치조인 많이 사용하낟.
+- 페치조인 많이 사용한다.
+
++강의
+
+```java
+join(조인 대상, 별칭으로 사용할 Q타입)
+```
+- 기본조인 : 조인의 기본 문법은 첫 번째 파라미터에 조인 대상을 지정하고, 두 번째 파라미터에 별칭(alias)으로 사용할 Q 타입을 지정하면 된다.
+
+- join() , innerJoin() : 내부 조인(inner join)
+- leftJoin() : left 외부 조인(left outer join)
+- rightJoin() : rigth 외부 조인(rigth outer join)
+- JPQL의 on 과 성능 최적화를 위한 fetch 조인 제공 다음 on 절에서 설명
 
 ![ConnectionMaker](./images/10.4_16.PNG)   
 
