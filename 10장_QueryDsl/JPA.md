@@ -112,6 +112,7 @@ public void before(){
 - 정렬은 orderBy를 사용하는데 쿼리 타입(Q)이 제공하는 asc(),desc ()를 사용한다.
 - 페이징은 offset과 limit을 적절히 사용해서 사용하면 된다.
 
++ 결과조회(강의)
 ![ConnectionMaker](./images/0.0_2.PNG)   
 - nullsLast() , nullsFirst() : null 데이터 순서 부여
 
@@ -125,7 +126,18 @@ public void before(){
 - list() 대신에 listResults()를 사용한다.
 - listResults()를 사용하면 전체 데이터를 조회를 위한 count 쿼리를 한번 더 실행한다.
 - SearchResults()를 반환하는데 이 객체에서 전체 데이터 수를 조회할 수 있다.
-  
+
++ 결과조회(강의)
++ ![ConnectionMaker](./images/0.0_3.PNG) 
+  - 페이징에서 order by를 넣어줘야 정확한 결과를 알 수 있다.
+  - offset : 앞에 몇번째꺼 끊어서 스킵할거다. (offset(1):1개를 스킵할거다.)
+  - limit : 최대 출력 건수
+  - 주의: count 쿼리가 실행되니 성능상 주의!
+  - 참고: 실무에서 페이징 쿼리를 작성할 때, 데이터를 조회하는 쿼리는 여러 테이블을 조인해야 하지만, count 쿼리
+    는 조인이 필요 없는 경우도 있다. 그런데 이렇게 자동화된 count 쿼리는 원본 쿼리와 같이 모두 조인을 해버리기
+    때문에 성능이 안나올 수 있다. count 쿼리에 조인이 필요없는 성능 최적화가 필요하다면, count 전용 쿼리를 별
+    도로 작성해야 한다.
+    
 ### 10.4.6 그룹
 
 ![ConnectionMaker](./images/10.4_12.PNG)   
