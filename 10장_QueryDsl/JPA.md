@@ -106,11 +106,16 @@ public void before(){
 
 ### 10.4.5 페이징과 정렬
 
+####정렬
 ![ConnectionMaker](./images/10.4_9.PNG)   
 
 - 정렬은 orderBy를 사용하는데 쿼리 타입(Q)이 제공하는 asc(),desc ()를 사용한다.
 - 페이징은 offset과 limit을 적절히 사용해서 사용하면 된다.
 
+![ConnectionMaker](./images/0.0_2.PNG)   
+- nullsLast() , nullsFirst() : null 데이터 순서 부여
+
+#### 페이징
 ![ConnectionMaker](./images/10.4_10.PNG)   
 - restrict () 메소드에 com.mysema.query.QueryModifiers를 파라미터로 사용해도 된다.
 
