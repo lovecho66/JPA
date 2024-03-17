@@ -94,3 +94,5 @@ Query값 dto 조회하기
 - 빈 컬렉션을 반환한다.
 - 스프링 데이터 jpa는 하나를 조회했을 때 없으면 익셉션 터진걸 try catch로 감싸서 null로 반환한다. 자바 8에 옵션널로써~
 - -----------------
+- totalcount가 필요(page -컨테츠쿼리,totalcount)
+- totalcount가 필요 없는 것 더보기 버튼 (slice)
