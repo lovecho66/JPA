@@ -65,3 +65,26 @@ jpa 편하게 사용하는게 스프링 jpa다.
  - 복잡한 정적 쿼리는 쿼리 직접푼다.
  - 동적 쿼리는 querydsl을 써야한다. 실무에서 가장 많이 쓰고 유지보수도 좋다.
     
+----------------
+Query값 dto 조회하기
+- dto를 반환할때는 꼭 new로 생성자 매칭 시켜줘야 한다. 
+  @Query("select m.id, m.username, t.name from Member m join m.team t")
+  list<memberdto> findMemberDto();
+위 처럼 쓰면 안되고
+  @Query("select new study.datajpa.dto.MemberDto( m.id, m.username, t.name) from Member m join m.team t")
+  list<memberdto> findMemberDto();
+  이렇게 써야 한다. (new study.datajpa.dto.MemberDto())
+- jpql이 제공하는 문법이고 dto로 반환한다.
+- 객체가 생성해주는건 jpql이다.
+- querydsl쓰면 이런거 사실또..쉬워진다 쿼리 dsl~~
+
+- ----------파라미터 바인딩
+- 위치기반 이름기반
+- 위치기반은 안쓴다. 가독성과 유지보수로 이름기반을 써야한다.
+- 컬렉션 파라미터 바인딩은 in절로 여러개를 조회하고 싶을때 쓰는 기능인데
+- 많이 사용한다.
+- @Query("select m from member m where m.username in : names")
+- list<member>findByNameds(@Param("names") List<string> names)
+- in을 예쁘게 쓸 수 있다. 자동으로 만들어준다.
+- 실행할 때 Arrays.asList("aaa","bbb")로 한다.
+- 
