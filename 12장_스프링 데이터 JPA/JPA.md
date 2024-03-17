@@ -129,3 +129,7 @@ Query값 dto 조회하기
 - page.map(member -> new MemerDto(member.getId(),member.getUsername(),null)
 - 이렇게하면 map에서 결과를 얻을 수 있다. dto로 변경됬으면 결과를 api로 반환해도된다. 내부 엔티티가 아니라 dto로 변경됬기때문이다. 이건 유용하다!!
 - page를 유지하면서 dto로 반환할 수 있다. 
+- ----------------벌크성 수정 쿼리를 보쟈--------------
+- @Modifying 어노테이션을 넣어줘야지 없으면 resultList나 singleList를 호출한다. 그러니 어노테이션을 넣어줘야 한다.
+- 업데이트 쿼리인데 @Modifying 어노테이션를 안넣어줘? 오류내
+- 벌크성 업데이트 주의할점은 벌크연산은 db에 바로 때려버리니까 조심해야 한다. 영속성 컨텍스트로 관리되어있는 애들은 
