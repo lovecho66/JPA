@@ -103,4 +103,29 @@ Query값 dto 조회하기
 - 개발 생산성 너무 좋다~
 - 컨텐트가져오고 싶으면 page.getcontent()해서 가져온다.
 - page.gettoatalElemns()가 totalcount다.
-- 
+- content.size() - 보여줄 데이터수
+- page.getTotalElements - 총 데이터 수
+- page.getNumber() - page의 번호 (b)
+- page.gettotalPages() - 전체 페이지 개수 (2개)
+- page.isFirst() : 첫번째 페이지?
+- page.hasNext() : 다음 페이지 있니?
+- 정리!
+- 파라미터 넘길때 pageable 인터페이스 구현애애를 넘긴다. 그러면 페이징 쿼리가된다.
+- 반환 타입에 따라 totalcount를 날릴지 말지 결정한다.
+- slice는 다음페이지가 있어? 없어? 정도만 가져온다. count쿼리가 없다!!
+- 내가 요청하는거보다 +1 개 더가져온다.
+- 페이징쿼리가 토탈카운트 쿼리가 데이터 값 전체 가져와야해서 성능이 안나온다. 그래서 토탈카운트 쿼리를 잘 써야할 때가 있따. 그래서 count쿼리를 분리하는 기능을 제공한다.
+- 쿼리를 분리해도된다.
+- 실무에서 중요하다!!!! 선능!!
+- 그래서 count 쿼리를 분리해서
+- @query(value = "select m from Member m left join m.team t",
+        countQuery = "select count(m) from Member m")
+- page<Member> findByAge(int age, pageable pageable);
+  이렇게 작성해준다. 
+- 주의할점!! 실무 꿀팁!
+- page를 api에서 controller에서 바로 반환하면 안된다.
+- 엔티티는 절대 외부에 노출시키면 안됨 DTO 에 꼭 넣어줘야한다. API장애난다..
+- 페이지를 DTO로 변환해야한다. 간단하게 변경하는 방법은
+- page.map(member -> new MemerDto(member.getId(),member.getUsername(),null)
+- 이렇게하면 map에서 결과를 얻을 수 있다. dto로 변경됬으면 결과를 api로 반환해도된다. 내부 엔티티가 아니라 dto로 변경됬기때문이다. 이건 유용하다!!
+- page를 유지하면서 dto로 반환할 수 있다. 
