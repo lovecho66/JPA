@@ -92,7 +92,18 @@ public void before(){
   - uniqueResult() : 조회 결과가 한 건일 때 사용한다. 조회 결과가 없으면 null을 반환하고 결과가 하나 이상이면 com.mysema.query . NonUniqueResultException 예외가 발생한다.
   -  singleResult() : uniqueResult()와 같지만 결과가 하나 이상이면 처음 데이터를 반환한다.
   -  list() : 결과가 하나 이상일 때 사용한다. 결과가 없으면 빈 컬렉션을 반환한다.
-    
+
++ 결과조회(강의)
+![ConnectionMaker](./images/0.0_1.PNG)   
+  - fetch() : 리스트 조회, 데이터 없으면 빈 리스트 반환
+  - fetchOne()
+    - 결과가 없으면 : null
+    - 결과가 둘 이상이면 : com.querydsl.core.NonUniqueResultException
+  - fetchFirst() : limit(1).fetchOne()
+  - fetchResults() : 페이징 정보 포함, total count 쿼리 추가 실행
+  - fetchCount() : count 쿼리로 변경해서 count 수 조회
+> fetchResults() 페이지 쿼리가 복잡해지면 컨텐츠를 가져올때 성능때문에 totalcount값이랑 다를때가 있다.이때는 쿼리 두방을 따로 날려야 한다.
+
 ### 10.4.5 페이징과 정렬
 
 ![ConnectionMaker](./images/10.4_9.PNG)   
