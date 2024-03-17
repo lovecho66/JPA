@@ -96,3 +96,11 @@ Query값 dto 조회하기
 - -----------------
 - totalcount가 필요(page -컨테츠쿼리,totalcount)
 - totalcount가 필요 없는 것 더보기 버튼 (slice)
+- -------------스프링 데이터 jpa에서 페이징 보쟈!
+- 이름자동메소드에 매개변수에 pageable을 넘겨주면된다.
+- 스프링 데이터 jpa는 페이지가 1부터 시작하는게 아니라 0부터 시작한다. 주의!
+- page로 받으면 totalcount도 같이 날려서 가져온다.
+- 개발 생산성 너무 좋다~
+- 컨텐트가져오고 싶으면 page.getcontent()해서 가져온다.
+- page.gettoatalElemns()가 totalcount다.
+- 
