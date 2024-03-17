@@ -132,4 +132,30 @@ Query값 dto 조회하기
 - ----------------벌크성 수정 쿼리를 보쟈--------------
 - @Modifying 어노테이션을 넣어줘야지 없으면 resultList나 singleList를 호출한다. 그러니 어노테이션을 넣어줘야 한다.
 - 업데이트 쿼리인데 @Modifying 어노테이션를 안넣어줘? 오류내
-- 벌크성 업데이트 주의할점은 벌크연산은 db에 바로 때려버리니까 조심해야 한다. 영속성 컨텍스트로 관리되어있는 애들은 
+- 벌크성 업데이트 주의할점은 벌크연산은 영속성 컨텍스트로 관리가 뭐가 있는지 상관없이 db에 바로 때려버리니까 조심해야 한다.
+- 그래서 벌크성 연산 이후에는 영속성 컨텍스트 날려줘야 한다. em.flush()와 em.clear()를 해줘야 한다.
+- 근데 벌크연산의 @modifying 어노테이션 옵션에 clear하는 옵션이 있다 celar()해줄 필요없이  @modifying(clearAutomatically = true)해서 영속성 컨텍스를 초기화한다.
+- 벌크연산이나 jdbc템플릿이나 마이바티스처럼 쿼리를 날리는건 jpa가 인식을 못한다.그래서 메모리인 영속성 컨텍스트에 있는거랑 안맞는다.이럴땐 clear나 flush를 해줘야 한다.
+- -------------------------@EntityGraph--------------------
+- fetch join을 사용하려면 jpql을 항상 써야하는거다.
+- 엔티티 그래프를 사용하면 jpql을 안짜고 패치조인이된다.
+- 오버라이드해서 메소드를 생성하고 @EntityGraph 어노테이션을 사용해서 연관되서 가져올 엔티티도 가져온다.
+- @override
+- @entitygraph(attributepaths = {"team"})
+List<Member> findAll();
+
+이름도 가능하다.
+- 오버라이드해서 메소드를 생성하고 @EntityGraph 어노테이션을 사용해서 연관되서 가져올 엔티티도 가져온다.
+
+- @entitygraph(attributepaths = {"team"})
+- @query("select * from member m")
+List<Member> findAll();
+- EntityGraph 을 사용하면 fetch join을 편하게 사용할 수 있다.
+
+
+- @entitygraph(attributepaths = {"team"})
+List<Member> findEntityGraphByUsername();
+- EntityGraph 을 사용하면 fetch join을 편하게 사용할 수 있다.
+
+- 간단할 때는 entitygraph를 쓰고 복잡할때는 jpql의 fetch join을 사용한다. 
+----------------hint lock 
