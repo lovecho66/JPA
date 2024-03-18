@@ -159,3 +159,17 @@ List<Member> findEntityGraphByUsername();
 
 - 간단할 때는 entitygraph를 쓰고 복잡할때는 jpql의 fetch join을 사용한다. 
 ----------------hint lock 
+-------------
+화면에 맞춰진 로직(단순)이랑 비즈니스 로직(핵심)을 따로 분리해서 관리하기를 추천한다.  
+사용자 정의 리포지토리가 항상 써야하는건 아니다. 
+----------------------오디팅~
+auditing 은 실무에서 잘 사용한다.
+jpa가 @prepersist를 제공한다. @preupdate를 제공한다. -> 하기전에 타는 어노테이션
+@mappedsuperclass를 지정해야 실제 받아진다.  
+extends로 상속 받아 jpa 이벤트를 가지고 수정 입력에 대해서 입력일시 수정일시 등을 자동으로 값을 넣어줬다 엔티티가 많아져도 상속만 받으면된다. 
+근데 스프링 데이터 jpa는 @EnableAuditing을 꼭 넣어줘야 한다. 그래야지 동작한다
+@lastmodifieddate,@createDate 어노테이션을 넣어준다. 
+@EntityListeners() 이벤트를 받아서 다 처리해준다.
+
+----도메인 클래스 컨버터 잘 안쓴다. 간단한 조회를 할 경우에만 써라!
+
