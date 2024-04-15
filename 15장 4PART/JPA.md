@@ -63,12 +63,14 @@ SELECT * FROM MEMBER
 firstMember = members.get(0) ;
 firstMember.getOrders().size () ; //지연 로딩 초기화
 ```
+
 - 이후 비즈니스 로직에서 주문 컬렉션을 실제 사용할 때 지연 로딩이 발생한다
 - orders객체 가져옴
   
 ```xml
 SELECT * FROM ORDERS WHERE MEMBER_ID=?
 ``
+
 - members.get(0)로 회원 하나만 조회해서 사용했기 때문에 firstMember.getOrders().size () 를 호줄하면서 실행되는 SQL은 다음과 같다.
 
 ```java
@@ -77,6 +79,7 @@ for (Member member : members) {
   System. out. println ("member ="+ member.getOrders().size());
 }
 ```
+
 - 문제는 다음처럼 모든 회원에 대해 연관된 주문 컬렉션을 사용할 때 발생한다
 - 주문 컬렉션을 초기화하는 수만큼 다음 SQL이 실행될 수 있다. 회원이 5명이면 회원에 따른 주문도 5번 조회된다
 - 이것도 결국 N+1 문제다.
