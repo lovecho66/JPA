@@ -23,14 +23,14 @@
 
 ```xml
 SELECT * FROM MEMBER
-``
+```
 
 - SQL의 실행 결과로 먼저 회원 엔티티를 애플리케이션에 로딩한다.
 - 그런데 회원 엔티티와 연관된 주문 컬렉션이 즉시 로딩으로 설정되어 있으므로 JPA는 주문 컬렉션을 즉시 로딩하려고 다음 SQL을 추가로 실행한다.
 
 ```xml
 SELECT * FROM ORDERS WHERE MEMBER_ID=?
-``
+```
 
 - 조회된 회원이 하나면 이렇게 총 2번의 SQL을 실행된다.
 - 조회된 회원이 5명이면 조회한 각각의 회원 엔티티와 연관된 주문 컬렉션을 즉시 조회하려고 총 5번의 SQL을 추가로 실행한다.
@@ -51,12 +51,14 @@ SELECT * FROM ORDERS WHERE MEMBER_ID=?
 List<Member> members =
 em.createQuery(Mselect m from Member m n, Member.class)
 .getResultList();
-``
+```
+
 - 지연 로딩이므로 데이터베이스에서 회원만 조회된다.
 
 ```xml
 SELECT * FROM MEMBER
-``
+```
+
 - 따라서 위 SQL만 실행되고 연관된 주문 컬렉션은 지연 로딩된다.
 
 ```java
@@ -69,7 +71,7 @@ firstMember.getOrders().size () ; //지연 로딩 초기화
   
 ```xml
 SELECT * FROM ORDERS WHERE MEMBER_ID=?
-``
+```
 
 - members.get(0)로 회원 하나만 조회해서 사용했기 때문에 firstMember.getOrders().size () 를 호줄하면서 실행되는 SQL은 다음과 같다.
 
@@ -97,10 +99,12 @@ for (Member member : members) {
 ```xml
 select m from Member m join fetch m.orders
 ```
+
 ```xml
 SELECT M.*, 0.* FROM MEMBER M
 INNER JOIN ORDERS O ON M.ID=O.MEMBER_ID
 ```
+
 - 페치 조인을 사용하는 JPQL을 보자.
 - TIP) 이 예제는 일대다 조인을 했으므로 결과가 늘어나서 중복된 결과가 나타날 수 있다. 따라서 JPQL의 DISTINCT를 사용해서 중복을 제거하는 것이 좋다,
 
