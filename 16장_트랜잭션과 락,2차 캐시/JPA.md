@@ -101,13 +101,13 @@ EPEATABLEREAD가 가능하다.
   ■ Short (short)
   ■ Timestamp
 
-![ConnectionMaker](./images/16.1_2.PNG.PNG)   
+![ConnectionMaker](./images/16.1_2.PNG)   
 
 -  엔티티에 버전 관리용 필드를 하나 추가하고 @Version을 붙이면 된다.
 - 엔티티를 수정할 때 마다 버전이 하나씩 자동으로 증가한다.
 - 엔티티를 수정할 때 조회 시점의 버전과 수정 시점의 버전이 다르면 예외가 발생한다.
 
-![ConnectionMaker](./images/16.1_3.PNG.PNG)   
+![ConnectionMaker](./images/16.1_3.PNG)   
 
 - 트랜잭션 1 이 조회한 엔티티를 수정하고 있는데 트랜잭션 2에서 같은 엔티티를 수정하고 커밋해서 버전이 증가해버리면 트랜잭션 1 이 커밋할 때 버전 정보가 다르므로 예외가 발생한다.
 - 조회할 때 버전과 데이터베이스의 현재 버전 정보가 다르므로 예외가 발생한다. 따라서 버전 정보를 사용하면 최초 커밋만 인정하기가 적용된다.
@@ -120,19 +120,19 @@ EPEATABLEREAD가 가능하다.
 - 단 연관관계 필드는 외래 키를 관리하는 연관관계의 주인 필드를 수 정할 때만 버전이 증가한다.
 - ©Version으로 추가한 버 전 관리 필드는 JPA가 직접 관리하므로 개발자가 임의로 수정하면 안 된다(벌크 연산 제외). 만약 버전 값을 강제로 증가하려면 특별한 락 옵션을 선택하면 된다
 
-![ConnectionMaker](./images/16.1_4.PNG.PNG)   
+![ConnectionMaker](./images/16.1_4.PNG)   
 
 
 
 ### 16.1.4 JPA 락 사용
 
-![ConnectionMaker](./images/16.1_5.PNG.PNG)   
+![ConnectionMaker](./images/16.1_5.PNG)   
 
 - 위 위치에 적용할 수 있다. 
 - Board board = em.find(Board.class, id, LockModeType.OPTIMISTIC);로 조회하면서 즉시락을 걸 수 있고
 - em.lock(board, LockModeType.OPTIMISTIC);처럼 필요할 때 락을 걸 수 있다.
 
-![ConnectionMaker](./images/16.1_6.PNG.PNG) 
+![ConnectionMaker](./images/16.1_6.PNG) 
 
 - JPA가 제공하는 락 옵션은 javax.persistence.LockModeType에 정의되어 있다.
 - LockModeType의 자세한 속성은 위와 같다.
@@ -141,7 +141,7 @@ EPEATABLEREAD가 가능하다.
 - JPA가 제공하는 낙관적 락은 버전(@Version)을 사용한다. 따라서 낙관적 락을 사용하려면 버전이 있어야 한다.
 - 낙관적 락은 트랜잭션을 커밋하는 시점에 충돌을 알 수 있다는 특징이 있다.
 
-![ConnectionMaker](./images/16.1_7.PNG.PNG) 
+![ConnectionMaker](./images/16.1_7.PNG) 
 
 - 낙관적 락에서 발생하는 예외는 다음과 같다
 - 참고로 락 옵션 없이 @ Version만 있어도 낙관적 락이 적용된다.
@@ -163,7 +163,7 @@ EPEATABLEREAD가 가능하다.
    -  동작: 트랜잭션을 커밋할 때 버전 정보를 조회해서(況LECT 쿼리 사용) 현재 엔티티의 버전과 같은지 검증한다. 만약 같지 않으면 예외가 발생한다.
    -  이점 : OPTIMISTIC 옵션은 DIRTY READ와 NON-REPEATABLE READ를 방지한다
 
-![ConnectionMaker](./images/16.1_8.PNG.PNG) 
+![ConnectionMaker](./images/16.1_8.PNG) 
 
 - 트랜잭션 1은 OPTIMISTIC 락으로 버전이 1인 데이터를 조회했다. 이후에 트랜잭션 2가 데이터를 수정해버렸고 버전은 2로 증가했다.
 - 트랜잭션 1은 엔티티를 OPTIMISTIC 락으로 조회했으므로 트랜잭션을 커밋할 때 데이터베이스에 있는 버전 정보를 SELECT 쿼리로 조회해서 처음에 조회한 엔티티의 버전 정
@@ -183,7 +183,7 @@ EPEATABLEREAD가 가능하다.
              추가로 엔티티를 수정하면 수정 시 버전 UPDATE가 발생한다. 따라서 총 2번의 버전 증가가 나타날 수 있다.
     - 이점 : 강제로 버전을 증가해서 논리적인 단위의 엔티티 묶음을 버전 관리할 수 있다.
 
-![ConnectionMaker](./images/16.1_9.PNG.PNG)
+![ConnectionMaker](./images/16.1_9.PNG)
 
 - 데이터를 수정하지 않아도 트랜잭션을 커밋할 때 버전 정보가 증가한다
 
@@ -195,7 +195,7 @@ EPEATABLEREAD가 가능하다.
   - 엔티티가 아닌 스칼라 타입을 조회할 때도 사용할 수 있다.
   - 데이터를 수정하는 즉시 트랜잭션 충돌을 감지할 수 있다.
 
-![ConnectionMaker](./images/16.1_10.PNG.PNG)
+![ConnectionMaker](./images/16.1_10.PNG)
 
 - 비관적 락에서 발생하는 예외는 다음과 같다
 
@@ -218,7 +218,7 @@ EPEATABLEREAD가 가능하다.
 - 비관적 락을 사용하면 락을 획득할 때까지 트랜잭션이 대기한다.
 - 무한정 기다릴 수는 없으므로 타임아웃 시간을 줄 수 있다.
 
-![ConnectionMaker](./images/16.1_11.PNG.PNG)
+![ConnectionMaker](./images/16.1_11.PNG)
 
 - 다음 예제는 10초간 대기해서 응답이 없으면 javax.persistence.LockTimeoutException 예외가 발생한다.
 - 타임아웃은 데이터베이스 특성에 따라 동작하지 않을 수 있다.
@@ -244,7 +244,7 @@ EPEATABLEREAD가 가능하다.
 
 - 하이버네이트를 포함한 대부분의 JPA 구현체들은 애플리케이션 범위의 캐시를 지원하는데 이것을 공유 캐시 또는 2차 캐시라 한다. 
 
-![ConnectionMaker](./images/16.1_12.PNG.PNG)
+![ConnectionMaker](./images/16.1_12.PNG)
 
 #### 1차 캐시 
 - 1차 캐시는 영속성 컨텍스트 내부에 있다.
@@ -255,7 +255,7 @@ EPEATABLEREAD가 가능하다.
 - 물론 OSIV를 사용하면 요청 (예를 들어 H T T P 요청)의 시작부터 끝까지 같은 영속성 컨텍스트를 유지한다
 - 1차 캐시는 끄고 켤 수 있는 옵션이 아니다. 영속성 컨텍스트 자체가 사실상 1차 캐시다
 
-![ConnectionMaker](./images/16.1_13.PNG.PNG)
+![ConnectionMaker](./images/16.1_13.PNG)
 
 - 1차 캐시 특징
   - 1차 캐시는 같은 엔티티가 있으면 해당 엔티티를 그대로 반환한다. 따라서 1차 캐시는 객체 동일성(a == b) 을 보장한다
@@ -269,7 +269,7 @@ EPEATABLEREAD가 가능하다.
 - 2차 캐시를 적용하면 엔티티 매니저를 통해 데이터를 조회할 때 우선 2차 캐시에서 찾고 없으면 데이터베이스에서 찾는다.
 - 2차 캐시를 적절히 활용하면 데이터베이스 조회 횟수를 획기적으로 줄일 수 있다.
 
-![ConnectionMaker](./images/16.1_14PNG.PNG)
+![ConnectionMaker](./images/16.1_14.PNG)
 
 - 2차 캐시는 동시성을 극대화하려고 캐시한 객체를 직접 반환하지 않고 복사본을 만들어서 반환한다.
 - 2차 캐시는 원본 대신에 복사본을 반환한다.
@@ -283,3 +283,102 @@ EPEATABLEREAD가 가능하다.
 - JPA 구현체 대부분은 캐시 기능을 각자 지원했는데 JPA는 2.0에 와서야 캐시 표준을 정의했다
 - JPA 캐시 표준은 여러 구현체가 공통으로 사용하는 부분만 표준화해서 세밀한 설정을 하려면 구현체에 의존적인 기능을 사용해야 한다.
 - JPA 캐시 표준 기능을 알아보자
+
+#### JPA 캐시 표준 기능
+
+1. 캐시 모드 설정
+
+   ![ConnectionMaker](./images/16.1_15.PNG)
+   
+  - 2차 캐시를 사용하려면  엔티티에 javax .persistence.Cacheable 어노테이션을 사용하면 된다
+  -  @Cacheable은 @Cacheable (true)，@Cacheable (false) 를 설정할 수 있는데 기본값은 true다.
+
+  ![ConnectionMaker](./images/16.1_16.PNG)
+
+  - persistence.xml에 shard-cache-mode를 설정해서 애플리케이션 전체에(정확히는 영속성 유닛 단 위 ) 캐시를 어떻게 적용할지 옵션을 설정해야 한다.
+
+  ![ConnectionMaker](./images/16.1_17PNG.PNG)
+
+  - 스프링 프레임워크를 사용할 때 설정하는 방법이다.
+
+  ![ConnectionMaker](./images/16.1_17.PNG)
+  
+  - 캐시 모드는 javax.persistence.SharedCacheMode에 정의되어 있다.
+  - 자세한 내용은 위 사진을 참고하자. 보통 ENABLE_SELECTIVE를 사용한다.
+    
+2. 캐시 조회, 저장 방식 설정
+   - 1)캐시를 무시하고 데이터베이스를 직접 조회하거나 2)캐시를 갱신하려면 캐시 조회 모드와 캐시 보관모드를 사용하면 된다.
+   - 캐시 조회 모드나 보관 모드에 따라 사용할 프로퍼 티와 옵션이 다르다.
+
+  ##### 프로퍼티 이름 
+  ![ConnectionMaker](./images/16.1_19.PNG)
+
+  ##### 프로퍼티 옵션
+  ![ConnectionMaker](./images/16.1_20.PNG)
+
+  ##### 캐시 조회 모드 
+  ![ConnectionMaker](./images/16.1_21.PNG)
+  - USE： 캐시에서 조회한다. 기본값이다.
+  - BYPASS： 캐시를 무시하고 데이터베이스에 직접 접근한다.
+
+  ##### 캐시 보관 모드
+  ![ConnectionMaker](./images/16.1_22.PNG)
+
+  - USE： 조회한 데이터를 캐시에 저장한다. 조회한 데이터가 이미 캐시에 있으면 캐시 데이터를 최신 상태로 갱신하지는 않는다.
+          트랜잭션을 커밋하면 등록 수정한 엔티티도 캐시에 저장한다. 기본값이다.
+  - BYPASS： 캐시에 저장하지 않는다.
+  - REFRESH： USE 전략에 추가로 데이터베이스에서 조회한 엔티티를 최신 상태로 다시 캐시한다
+
+  ![ConnectionMaker](./images/16.1_23.PNG)
+  
+  - EntityManager. setProperty()로 엔티티 매니저 단위로 설정가능하다.
+
+  ![ConnectionMaker](./images/16.1_24.PNG)
+  
+  - 더 세밀하게 EntityManager.find().EntityManager.refresh () 에 설정가능하다.
+
+  ![ConnectionMaker](./images/16.1_25.PNG)
+  
+  -  Query.setHint () (TypeQuery 포함)에 사용할 수 있다.
+
+3. JPA 캐시 관리 API
+
+![ConnectionMaker](./images/16.1_26.PNG)
+
+- JPA 는 캐시를 관리하기 위한 javax .persistence. Cache 인터페이스를 제공한다.
+
+#### 마무리
+- 실제 캐시를 적용하려면 구현체의 설명서를 읽어보아야 한다.
+- 하이버네이트와 EHCACHE를 사용해서 실제 2차 캐시를 적용해보자
+
+### 16.2.3 하이버네이트와 EHCACHE 적용
+- 하이버네이트와 EHCACHE(ehcache.org)를 사용해서 2차 캐시를 적용해보자.
+- 하이버네이트가 지원하는 캐시는 크게 3가지가 있다
+
+#### 하이버네이트가 지원하는 캐시
+![ConnectionMaker](./images/16.1_27.PNG)
+
+#### 환경설정
+
+![ConnectionMaker](./images/16.1_28.PNG)
+
+- 하이버네이트에서 E H C A C H E를 사용하려면 예제 16.16과 같이 hibernateehcache 라이브러리를 pom.xml에 추가하자.
+- hibernate-ehcache를 추가하면 net.sf .ehcache-core 라이브러리도 주가된다.
+
+![ConnectionMaker](./images/16.1_29.PNG)
+
+- ehcache.xml을 설정 파일로 사용한다.
+- 이 설정파일은 캐시를 얼마만큼 보관할지얼마 동안 보관할지와 같은 캐시 정책을 정의하는 설정 파일이다.
+- 자세한 내용은 EHCACHE 공식 문서를 참고하자. 이 파일을 클래스패스 루트인 src/main/resources에 두자.
+
+![ConnectionMaker](./images/16.1_30.PNG)
+
+- hibernate.cache.use_second_level_cache： 2차 캐시를 활성화한다. 엔티티 캐시와 컬렉션 캐시를 사용할 수 있다.
+- hibernate.cache.use_ query_ cache： 쿼리 캐시를 활성화한다.
+- hibernate. cache.region.factory_ class： 2차 캐시를 처리할 클래스를 지정한다.
+                                          여기서는 EHCACHE를 사용하므로 org.hibernate. cache. ehcache.EhCacheRegionFactory를 적용한다.
+- hibernate. generate_ statistics： 이 속성을 true로 설정하면 하이버네이트가 여러 통계정보를 출력해주는데 캐시 적용 여부를 확인할 수 있다
+                                    (성능에 영향을 주므로 개발 환경에서 만 적용하는 것 이 좋 다).
+- 2차 캐시를 사용할 준비를 완료했다. 이제 캐시를 사용해보자.
+
+#### 엔티티 캐시와 컬렉션 캐시
