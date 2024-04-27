@@ -382,3 +382,21 @@ EPEATABLEREAD가 가능하다.
 - 2차 캐시를 사용할 준비를 완료했다. 이제 캐시를 사용해보자.
 
 #### 엔티티 캐시와 컬렉션 캐시
+
+![ConnectionMaker](./images/16.1_31.PNG)
+
+- javax.persistence.Cacheable: 엔티티를 캐시하려면 1번처럼 이 어노테이션을 적용하면 된다.
+- org.hibernate. annotations. Cache：이 어노테이 션은 하이버네이트 전용이다.
+- 2번처럼 캐시와 관련된 더 세밀한 설정을 할 때 사용한다.
+- 또한 3번처 럼 컬렉션 캐시를 적용할 때도 사용한다.
+- 여기서 ParentMember는 엔티티 캐시 가 적용되고 ParentMember.childMembers는 컬렉션 캐시가 적용된다.
+
+1. Cache
+
+   ![ConnectionMaker](./images/16.1_32.PNG)
+   
+   - 하이버네이트 전용인 org.hibernate.annotations.Cache 어노테이션을 사용하면 세밀한 캐시 설정이 가능하다. 
+   - 중요한 것은 캐시 동시성 전략을 설정할 수 있는 usage 속성이다
+3. sd
+4. 
+
