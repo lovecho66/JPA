@@ -397,6 +397,30 @@ EPEATABLEREAD가 가능하다.
    
    - 하이버네이트 전용인 org.hibernate.annotations.Cache 어노테이션을 사용하면 세밀한 캐시 설정이 가능하다. 
    - 중요한 것은 캐시 동시성 전략을 설정할 수 있는 usage 속성이다
-3. sd
-4. 
+  
+    ![ConnectionMaker](./images/16.1_33.PNG)
+
+   - og.hibernate.annotations.CacheConcurrencyStrategy를 살펴 볼 수 있다. 
+
+    ![ConnectionMaker](./images/16.1_34.PNG)
+   - 캐시 종류에 따른 동시성 전략 지원 여부는 하이버네이트 공식 문서를 봐야한다.
+   - ConcurrentHashMap은 개발 시에만 사용해야 한다.
+
+2. 캐시 영역
+
+   ![ConnectionMaker](./images/16.1_35.PNG)
+   
+   - 위에서 캐시를 적용한 코드는 다음 캐시 영역CacheRegion에 저장된다.
+   - 엔티티 캐시 영역은 기본값으로 [패키지 명 + 클래스 명]을 사용하고 ，컬렉션 캐시 영역은 엔티티 캐시 영역 이름에 캐시한 컬렉션의 필드 명이 추가된다.
+   - 필요하다면 @Cache (region = "customRegion", ...) 처럼 region 속성을 사용해서 캐시 영역을 직접 지정할 수 있다
+   - 캐시 영역을 위한 접두사를 설정하려면 persistence.xml 설정에 hibernate, cache. region_prefix를 사용하면 된다
+
+  ![ConnectionMaker](./images/16.1_36.PNG)
+
+  - 캐시 영역이 정해져 있으므로 영역별로 세부 설정을 할 수 있다.
+  - 만약 ParentMember를 600초 마다 캐시에서 제거하고 싶으면 EHCACHE를 예제와 같이 설정하면 된다.
+  
+3. 쿼리캐시
+4. 쿼리 캐시 영역
+5. 쿼리 캐시와 컬렉션 캐시의 주의점
 
