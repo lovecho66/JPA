@@ -22,29 +22,31 @@
 - 트랜잭션 격리 수준 4가지
   ■ READ UNCOMMITED(커밋되지 않은 읽기)
   ■ READ COMMITTED(커밋된 읽기)
-  ■ REPEATABLE READ(반복 가능한읽기 )
+  ■ REPEATABLE READ(반복 가능한읽기)
   ■ SERIALIZABLE (직렬화가능)
 
 - 트랜잭션 격리 수준에 따른 문제점들도 있다.
 
 ![ConnectionMaker](./images/16.1_1.PNG)   
 
-- DIRTY READ
-- NON-REPEATABLE READ (반복 불 가 능 한 읽기 )
-- PHANTOM READ
-3가지 문제점들이 있다.
+- 3가지 문제점
+  - DIRTY READ
+  - NON-REPEATABLE READ (반복 불가능한 읽기 )
+  - PHANTOM READ
+
 
 - 격리 수준에 따라 나타나는 문제점을 보자.
   - READ UNCOMMITTED：커밋하지 않은 데이터를 읽을 수 있다. DIRTY READ를 허용한다.
     * 트랜잭션 2가 DIRTY READ한 데이터를 사용하는데 트랜잭션 1을 롤백하면 데이터 정합성에 심각한 문제가 발생할 수 있다
-    * DIRTY READ 예시 : 트랜잭션1이 데이터를 수정하고 있는데 커밋하지 않아도 트랜잭션 2가 수정 중인 데이터를 조회할 수 있다
+    * DIRTY READ 예시 : 트랜잭션1이 데이터를 수정하고 있는데 __커밋하지 않아도 트랜잭션 2가 수정 중인 데이터를 조회__ 할 수 있다
   - READ COMMITTED : 격리 수준이 가장 낮음, serializable의 격리 수준이 가장 높다. 대신 NON-REPEATABLE READ는 발생할 수 있다.
     * 반복해서 같은 데이터를 읽을 수 없는 상태가 될 수 있다. 
-    * NON-REPEATABLE READ 예시 : 트랜잭션 1 이 회원 A를 조회 중인데 갑자기 트랜잭션 2가 회원 A를 수정하고 커밋하면 트랜잭션 1 이 다시 회원 A를 조회했을 때 수정된 데이터가 조회된다.
+    * NON-REPEATABLE READ 예시 : 트랜잭션 1 이 회원 A를 조회 중인데 갑자기 트랜잭션 2가 회원 A를 수정하고 커밋하면 트랜잭션 1 이 __다시 회원 A를 조회했을 때 수정된 데이터가 조회__ 된다.
     * . DIRTY READ는 허용하지 않지만, NON-REPEATABLE READ는 허용하는 격리 수준을 READ COMMITTED라 한다.
-  -  REPEATABLE READ: 한 번 조회한 데이터를 반복해서 조회해도 같은 데이터가 조회된다. NON-REPEATABLE READ 는 허용하지 않지만 PHANTOM READ는 발생할 수 있다.
-    * 반복 조회 시 결과 집합이 달라질 수 있다. 
-    * PHANTOM READ 예시 : 트랜잭션1이 10살 이하의 회원을 조회했는데 트랜잭션 2가 5살 회원을 추가하고 커밋하면 트랜잭션1이 다시 10 살 이하의 회원을 조회했을 때 회원 하나가 추가된 상태로 조회된다.
+  -  REPEATABLE READ: 한 번 조회한 데이터를 __반복해서 조회해도 같은 데이터가 조회__ 된다.
+    * NON-REPEATABLE READ 는 허용하지 않지만 PHANTOM READ는 발생할 수 있다.
+    * __반복 조회 시 결과 집합이 달라질 수 있다.__ 
+    * PHANTOM READ 예시 : 트랜잭션1이 10살 이하의 회원을 조회했는데 트랜잭션 2가 5살 회원을 추가하고 커밋하면 트랜잭션1이 다시 10 살 이하의 회원을 조회했을 때 __회원 하나가 추가된 상태__ 로 조회된다.
   - SERIALIZABLE : 가장 엄격한 트랜잭션 격리 수준이다. 여기서는 PHANTOM READ가 발생하지 않는다.
     * 동시성 처리 성능이 급격히 떨어질 수 있다.
    
