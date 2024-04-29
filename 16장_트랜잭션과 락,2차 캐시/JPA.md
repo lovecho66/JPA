@@ -300,7 +300,7 @@ REPEATABLEREAD__ 가 가능하다.
 
   ![ConnectionMaker](./images/16.1_16.PNG)
 
-  - persistence.xml에 shard-cache-mode를 설정해서 애플리케이션 전체에(정확히는 영속성 유닛 단 위 ) 캐시를 어떻게 적용할지 옵션을 설정해야 한다.
+  - persistence.xml에 shard-cache-mode를 설정해서 애플리케이션 전체에(정확히는 영속성 유닛 단위 ) 캐시를 어떻게 적용할지 옵션을 설정해야 한다.
 
   ![ConnectionMaker](./images/16.1_17.PNG)
 
@@ -313,7 +313,7 @@ REPEATABLEREAD__ 가 가능하다.
     
 2. 캐시 조회, 저장 방식 설정
    - 1)캐시를 무시하고 데이터베이스를 직접 조회하거나 2)캐시를 갱신하려면 캐시 조회 모드와 캐시 보관모드를 사용하면 된다.
-   - 캐시 조회 모드나 보관 모드에 따라 사용할 프로퍼 티와 옵션이 다르다.
+   - 캐시 조회 모드나 보관 모드에 따라 사용할 프로퍼티와 옵션이 다르다.
 
   ##### 프로퍼티 이름 
   ![ConnectionMaker](./images/16.1_19.PNG)
@@ -367,7 +367,7 @@ REPEATABLEREAD__ 가 가능하다.
 
 ![ConnectionMaker](./images/16.1_28.PNG)
 
-- 하이버네이트에서 E H C A C H E를 사용하려면 예제 16.16과 같이 hibernateehcache 라이브러리를 pom.xml에 추가하자.
+- 하이버네이트에서 EHCACHE를 사용하려면 예제 16.16과 같이 hibernate-ehcache 라이브러리를 pom.xml에 추가하자.
 - hibernate-ehcache를 추가하면 net.sf .ehcache-core 라이브러리도 주가된다.
 
 ![ConnectionMaker](./images/16.1_29.PNG)
@@ -396,7 +396,7 @@ REPEATABLEREAD__ 가 가능하다.
 - 또한 3번처 럼 컬렉션 캐시를 적용할 때도 사용한다.
 - 여기서 ParentMember는 엔티티 캐시 가 적용되고 ParentMember.childMembers는 컬렉션 캐시가 적용된다.
 
-1. Cache
+1. Cache 속성
 
    ![ConnectionMaker](./images/16.1_32.PNG)
    
