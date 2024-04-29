@@ -368,7 +368,7 @@ REPEATABLEREAD__ 가 가능하다.
 ![ConnectionMaker](./images/16.1_28.PNG)
 
 - 하이버네이트에서 EHCACHE를 사용하려면 예제 16.16과 같이 hibernate-ehcache 라이브러리를 pom.xml에 추가하자.
-- hibernate-ehcache를 추가하면 net.sf .ehcache-core 라이브러리도 주가된다.
+- hibernate-ehcache를 추가하면 net.sf.ehcache-core 라이브러리도 추가된다.
 
 ![ConnectionMaker](./images/16.1_29.PNG)
 
@@ -383,7 +383,7 @@ REPEATABLEREAD__ 가 가능하다.
 - hibernate. cache.region.factory_ class： 2차 캐시를 처리할 클래스를 지정한다.
                                           여기서는 EHCACHE를 사용하므로 org.hibernate. cache. ehcache.EhCacheRegionFactory를 적용한다.
 - hibernate. generate_ statistics： 이 속성을 true로 설정하면 하이버네이트가 여러 통계정보를 출력해주는데 캐시 적용 여부를 확인할 수 있다
-                                    (성능에 영향을 주므로 개발 환경에서 만 적용하는 것 이 좋 다).
+                                    (성능에 영향을 주므로 개발 환경에서 만 적용하는 것 이 좋다).
 - 2차 캐시를 사용할 준비를 완료했다. 이제 캐시를 사용해보자.
 
 #### 엔티티 캐시와 컬렉션 캐시
@@ -439,8 +439,8 @@ REPEATABLEREAD__ 가 가능하다.
      - org.hibernate.cache.spi.UpdateTimestampsCache： 쿼리 캐시가 유효한지 확인하기 위해 쿼리 대상 테이블의 가장 최근 변경(등록, 수정，삭제)
                                                       시간을 저장 
       이곳에는 테이블 명과 해당 테이블의 최근 변경된 타임스탬프를 보관한다.
-   - 쿼리 캐시는 캐시한 데이터 집합을 최신 데이터로 유지하려고 쿼리 캐시를 실행하는 시간과 쿼리 캐시가 사용하는 테이블들이 가장 최근에 변경된 시간을 비교한다.
-   - 쿼리 캐시를 적용하고 난 후에 쿼리 캐시가 사용하는 테이블에 조금이라도 변경이 있으면 데이터베이스에서 데이터를 읽어와서 쿼리 결과를 다시 캐시한다.
+   - 쿼리 캐시는 __캐시한 데이터 집합을 최신 데이터로 유지__ 하려고 쿼리 캐시를 실행하는 시간과 쿼리 캐시가 사용하는 테이블들이 __가장 최근에 변경된 시간을 비교한다.__
+   - 쿼리 캐시를 적용하고 난 후에 __쿼리 캐시가 사용하는 테이블에 조금이라도 변경이 있으면 데이터베이스에서 데이터를 읽어와서 쿼리 결과를 다시 캐시한다.__
   
     ![ConnectionMaker](./images/16.1_39.PNG)
 
@@ -463,5 +463,5 @@ REPEATABLEREAD__ 가 가능하다.
 ![ConnectionMaker](./images/16.1_40.PNG)
 
 - 쿼리 캐시나 컬렉션 캐시만 사용하고 엔티티 캐시를 사용하지 않으면 최악의 상황에 결과 집합 수만큼 SQL이 실행된다.
-- 따라서 쿼리 캐시나 컬렉션 캐시를 사용하면 결과 대상 엔티 티에는 꼭 엔티티 캐시를 적용해야 한다.
+- 따라서 __쿼리 캐시나 컬렉션 캐시를 사용하면 결과 대상 엔티티에는 꼭 엔티티 캐시를 적용해야 한다.__
 
